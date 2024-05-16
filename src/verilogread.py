@@ -1,4 +1,3 @@
-import re
 filename = "design1.v"
 
 with open("./netlists/"+filename, "r") as file:
