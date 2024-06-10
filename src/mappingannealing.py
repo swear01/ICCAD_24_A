@@ -86,7 +86,7 @@ def mappingAnnealing(netlist_path, cost_estimator_path, library_path, output_pat
                 current_cost = neighbor_cost
                 if neighbor_cost < final_cost:
                     final_cost = neighbor_cost
-                    shutil.copy("parsedgate.v", sys.argv[4])
+                    shutil.copy(tempmapping_path, sys.argv[4])
             else:
                 if random.random() < pow(2.71828, (current_cost - neighbor_cost) / Temperature):
                     # uphill move
