@@ -21,7 +21,7 @@ def veryread(filename):
             i.startswith("8") or 
             i.startswith("9") ):
             input.append(int(i.split(" ")[0]))
-    print(f"Input is {input}",)
+    # print(f"Input is {input}",)
 
     # outputs
     outputs_data = lines[2].split("n")
@@ -38,7 +38,7 @@ def veryread(filename):
             i.startswith("8") or 
             i.startswith("9") ):
             output.append(int(i.split(" ")[0]))
-    print(f"Output is {output}",)
+    # print(f"Output is {output}",)
 
     # wire
     wire_data = lines[3].split("n")
@@ -55,7 +55,7 @@ def veryread(filename):
             i.startswith("8") or 
             i.startswith("9") ):
             wire.append(int(i.split(" ")[0]))
-    print(f"Wire is {wire}")
+    # print(f"Wire is {wire}")
 
     #gates
     gate = []
@@ -78,10 +78,10 @@ def veryread(filename):
         if (len(temp) == 5):
             gate.append(temp)
         if (len(temp) == 4):
-            temp = temp[0:3] + temp[2:3] + temp[3:]
+            temp = temp[0:] + temp[3:]
             gate.append(temp)
 
         loc += 1
 
-    print(f"gate is {gate}")
+    # print(f"gate is {gate}")
     return input, output, wire, gate
