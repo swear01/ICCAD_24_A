@@ -11,16 +11,7 @@ def veryread(filename):
     inputs_data = lines[1].split("n")
     input = []
     for i in inputs_data:
-        if (i.startswith("0") or 
-            i.startswith("1") or 
-            i.startswith("2") or 
-            i.startswith("3") or 
-            i.startswith("4") or 
-            i.startswith("5") or 
-            i.startswith("6") or
-            i.startswith("7") or 
-            i.startswith("8") or 
-            i.startswith("9") ):
+        if (i[0].isdigit()):
             input.append(int(i.split(" ")[0]))
     # print(f"Input is {input}",)
 
@@ -28,16 +19,7 @@ def veryread(filename):
     outputs_data = lines[2].split("n")
     output = []
     for i in outputs_data:
-        if (i.startswith("0") or 
-            i.startswith("1") or 
-            i.startswith("2") or 
-            i.startswith("3") or 
-            i.startswith("4") or 
-            i.startswith("5") or 
-            i.startswith("6") or
-            i.startswith("7") or 
-            i.startswith("8") or 
-            i.startswith("9") ):
+        if (i[0].isdigit()):
             output.append(int(i.split(" ")[0]))
     # print(f"Output is {output}",)
 
@@ -45,16 +27,7 @@ def veryread(filename):
     wire_data = lines[3].split("n")
     wire = []
     for i in wire_data:
-        if (i.startswith("0") or 
-            i.startswith("1") or 
-            i.startswith("2") or 
-            i.startswith("3") or 
-            i.startswith("4") or 
-            i.startswith("5") or 
-            i.startswith("6") or
-            i.startswith("7") or 
-            i.startswith("8") or 
-            i.startswith("9") ):
+        if (i[0].isdigit()):
             wire.append(int(i.split(" ")[0]))
     # print(f"Wire is {wire}")
 
