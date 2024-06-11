@@ -1,11 +1,12 @@
-
 def veryread(filename):
 
     with open(filename, "r") as file:
         contents = file.read()
 
     lines = contents.split(";")
-
+    # module name
+    modulename = lines[0].split("\n")[0]
+    
     # inputs
     inputs_data = lines[1].split("n")
     input = []
@@ -84,4 +85,7 @@ def veryread(filename):
         loc += 1
 
     # print(f"gate is {gate}")
-    return input, output, wire, gate
+    return modulename, input, output, wire, gate
+
+if __name__ == "__main__":
+    veryread("./ICCAD_24_A/src/readtest.v")
