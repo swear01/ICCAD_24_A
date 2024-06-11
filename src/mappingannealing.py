@@ -82,9 +82,9 @@ def mapping_annealing(netlist_path, cost_estimator_path, library_path, output_pa
         gate_number_result.append(random.randint(1,typesofgate[gate[0]]))  
     
     # get the initial state and initial cost
-    tempmapping_path = "temp/tempmapping.v"
-    parsedverilog.write_parsed_verilog(tempmapping_path, modulename, inputs, outputs, gates, gate_number_result)
-    current_cost = get_cost(cost_estimator_path, tempmapping_path, library_path, "output/output.txt")
+    tmpmapping_path = "tmp/tmpmapping.v"
+    parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
+    current_cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
     print("Initial Cost: ", current_cost)
     
     # Simulated Annealing parameters
@@ -98,7 +98,7 @@ def mapping_annealing(netlist_path, cost_estimator_path, library_path, output_pa
     neighbor_cost = 0
     final_cost = current_cost
     #create a copy of the initial mapping so that we can copy the best mapping to the output file
-    shutil.copy(tempmapping_path, output_path)
+    shutil.copy(tmpmapping_path, output_path)
     #progress bar
     pbar = tqdm(total=math.ceil(math.fabs(math.log(Temperature/minTemperature)/math.log(reduceRate))))
     
@@ -110,8 +110,8 @@ def mapping_annealing(netlist_path, cost_estimator_path, library_path, output_pa
             index = random.randint(0, lengthOfGates - 1)
             new_gate_number_result[index] = random.randint(1,typesofgate[gates[index][0]])
         # get the final_cost of the new state
-        parsedverilog.write_parsed_verilog(tempmapping_path, modulename, inputs, outputs, gates, new_gate_number_result)
-        neighbor_cost = get_cost(cost_estimator_path, tempmapping_path, library_path, "output/output.txt")
+        parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, new_gate_number_result)
+        neighbor_cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
         
         #compare the final_cost with the current_cost
         if neighbor_cost < current_cost:
@@ -119,7 +119,7 @@ def mapping_annealing(netlist_path, cost_estimator_path, library_path, output_pa
             current_cost = neighbor_cost
             if neighbor_cost < final_cost:
                 final_cost = neighbor_cost
-                shutil.copy(tempmapping_path, sys.argv[4])
+                shutil.copy(tmpmapping_path, sys.argv[4])
         else:
             if random.random() < pow(2.71828, (current_cost - neighbor_cost) / Temperature):
                 # uphill move
@@ -131,8 +131,80 @@ def mapping_annealing(netlist_path, cost_estimator_path, library_path, output_pa
     pbar.close()
     print("Final Cost: ", final_cost)
     
-    if os.path.isfile(tempmapping_path):
-        os.remove(tempmapping_path)
+    if os.path.isfile(tmpmapping_path):
+        os.remove(tmpmapping_path)
+    if os.path.isfile("output/output.txt"):
+        os.remove("output/output.txt")
+    
+    return final_cost
+
+def abc_mapping_annealing(netlist_path, cost_estimator_path, library_path, output_path):
+    # read the verilog file
+    modulename, inputs , outputs, wires, gates = verilogread.abc_veryread(netlist_path)
+    with open(library_path, 'r') as file:
+        data = json.load(file)  
+    # count the number of each type of gate
+    typesofgate = {'and': count_gate(data,'and'), 'or' : count_gate(data,'or'),
+                'xor' : count_gate(data,'xor'), 'nand' : count_gate(data,'nand'),
+                'nor' : count_gate(data,'nor'), 'xnor' : count_gate(data,'xnor'),
+                'not' : count_gate(data,'not'), 'buf' : count_gate(data,'buf')}
+    #assign initial gate number to each gate
+    gate_number_result = []
+    for gate in gates:
+        gate_number_result.append(random.randint(1,typesofgate[gate[0]]))  
+    
+    # get the initial state and initial cost
+    tmpmapping_path = "tmp/tmpmapping.v"
+    parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
+    current_cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
+    print("Initial Cost: ", current_cost)
+    
+    # Simulated Annealing parameters
+    initialTemperature = 1000.0
+    Temperature = initialTemperature
+    minTemperature = 0.001
+    reduceRate = 0.99
+    
+    lengthOfGates = len(gates)
+    #define costs
+    neighbor_cost = 0
+    final_cost = current_cost
+    #create a copy of the initial mapping so that we can copy the best mapping to the output file
+    shutil.copy(tmpmapping_path, output_path)
+    #progress bar
+    pbar = tqdm(total=math.ceil(math.fabs(math.log(Temperature/minTemperature)/math.log(reduceRate))))
+    
+    while Temperature > minTemperature:
+        # create a new gate number result
+        new_gate_number_result = gate_number_result.copy()
+        for i in range(0, min(math.floor(lengthOfGates * Temperature ), lengthOfGates * 10)):
+            # move to neighbour state
+            index = random.randint(0, lengthOfGates - 1)
+            new_gate_number_result[index] = random.randint(1,typesofgate[gates[index][0]])
+        # get the final_cost of the new state
+        parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, new_gate_number_result)
+        neighbor_cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
+        
+        #compare the final_cost with the current_cost
+        if neighbor_cost < current_cost:
+            gate_number_result = new_gate_number_result
+            current_cost = neighbor_cost
+            if neighbor_cost < final_cost:
+                final_cost = neighbor_cost
+                shutil.copy(tmpmapping_path, sys.argv[4])
+        else:
+            if random.random() < pow(2.71828, (current_cost - neighbor_cost) / Temperature):
+                # uphill move
+                gate_number_result = new_gate_number_result
+                current_cost = neighbor_cost
+        #update the temperature
+        Temperature = Temperature * reduceRate 
+        pbar.update(1)
+    pbar.close()
+    print("Final Cost: ", final_cost)
+    
+    if os.path.isfile(tmpmapping_path):
+        os.remove(tmpmapping_path)
     if os.path.isfile("output/output.txt"):
         os.remove("output/output.txt")
     
@@ -149,13 +221,13 @@ def initial_mapping(netlist_path, cost_estimator_path, library_path):
         gate_number_result.append(1)  
     
     # get the initial state and initial cost
-    tempmapping_path = "temp/initialtempmapping.v"
-    parsedverilog.write_parsed_verilog(tempmapping_path, modulename, inputs, outputs, gates, gate_number_result)
-    cost = get_cost(cost_estimator_path, tempmapping_path, library_path, "output/output.txt")
+    tmpmapping_path = "tmp/initialtmpmapping.v"
+    parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
+    cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
     print("Cost: ", cost)
     
-    if os.path.isfile(tempmapping_path):
-        os.remove(tempmapping_path)
+    if os.path.isfile(tmpmapping_path):
+        os.remove(tmpmapping_path)
     if os.path.isfile("output/output.txt"):
         os.remove("output/output.txt")
     
@@ -173,13 +245,13 @@ def initial_mapping_with_assignment(netlist_path, cost_estimator_path, library_p
         gate_number_result.append(gatetype_dict[gate[0]])  
     
     # get the cost
-    tempmapping_path = "temp/initialtempmapping.v"
-    parsedverilog.write_parsed_verilog(tempmapping_path, modulename, inputs, outputs, gates, gate_number_result)
-    cost = get_cost(cost_estimator_path, tempmapping_path, library_path, "output/output.txt")
+    tmpmapping_path = "tmp/initialtmpmapping.v"
+    parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
+    cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
     print("Cost: ", cost)
     
-    if os.path.isfile(tempmapping_path):
-        os.remove(tempmapping_path)
+    if os.path.isfile(tmpmapping_path):
+        os.remove(tmpmapping_path)
     if os.path.isfile("output/output.txt"):
         os.remove("output/output.txt")
     
@@ -204,9 +276,9 @@ def initial_mapping_determine(netlist_path, cost_estimator_path, library_path):
                     'not' : count_gate(data,'not'), 'buf' : count_gate(data,'buf')}
     
     # get the initial state and initial cost
-    tempmapping_path = "temp/tempinitialmapping.v"
-    parsedverilog.write_parsed_verilog(tempmapping_path, modulename, inputs, outputs, gates, gate_number_result)
-    cost = get_cost(cost_estimator_path, tempmapping_path, library_path, "output/output.txt")
+    tmpmapping_path = "tmp/tmpinitialmapping.v"
+    parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
+    cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
     print("Initial Cost: ", cost)
     
     for key in mapping_dict:
@@ -214,8 +286,8 @@ def initial_mapping_determine(netlist_path, cost_estimator_path, library_path):
             for gate in gates:
                 if gate[0] == key:
                     gate_number_result[gates.index(gate)] = num
-            parsedverilog.write_parsed_verilog(tempmapping_path, modulename, inputs, outputs, gates, gate_number_result)
-            new_cost = get_cost(cost_estimator_path, tempmapping_path, library_path, "output/output.txt")
+            parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
+            new_cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
             if new_cost < cost:
                 cost = new_cost
                 mapping_dict[key] = num
@@ -226,8 +298,8 @@ def initial_mapping_determine(netlist_path, cost_estimator_path, library_path):
     print("Final Cost = ", cost)
     # print(mapping_dict)
     
-    if os.path.isfile(tempmapping_path):
-        os.remove(tempmapping_path)
+    if os.path.isfile(tmpmapping_path):
+        os.remove(tmpmapping_path)
     if os.path.isfile("output/output.txt"):
         os.remove("output/output.txt")
     
@@ -239,6 +311,7 @@ if __name__ == "__main__":
         sys.exit(1)
     
     # mapping_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    abc_mapping_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     # initialCost = initial_mapping(sys.argv[1], sys.argv[2], sys.argv[3])
-    dictionary = initial_mapping_determine(sys.argv[1], sys.argv[2], sys.argv[3])
-    initial_mapping_with_assignment(sys.argv[1], sys.argv[2], sys.argv[3], dictionary)
+    # dictionary = initial_mapping_determine(sys.argv[1], sys.argv[2], sys.argv[3])
+    # initial_mapping_with_assignment(sys.argv[1], sys.argv[2], sys.argv[3], dictionary)
