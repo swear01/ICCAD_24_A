@@ -8,27 +8,27 @@ def veryread(filename):
     modulename = lines[0].split("\n")[0]
     
     # inputs
-    inputs_data = lines[1].split("n")
+    inputs_data = lines[1].split(" ")
     input = []
     for i in inputs_data:
-        if (i[0].isdigit()):
-            input.append(int(i.split(" ")[0]))
+        if (i.startswith("n")):
+            input.append(i)
     # print(f"Input is {input}",)
 
     # outputs
-    outputs_data = lines[2].split("n")
+    outputs_data = lines[2].split(" ")
     output = []
     for i in outputs_data:
-        if (i[0].isdigit()):
-            output.append(int(i.split(" ")[0]))
+        if (i.startswith("n")):
+            output.append(i)
     # print(f"Output is {output}",)
 
     # wire
-    wire_data = lines[3].split("n")
+    wire_data = lines[3].split(" ")
     wire = []
     for i in wire_data:
-        if (i[0].isdigit()):
-            wire.append(int(i.split(" ")[0]))
+        if (i.startswith("n")):
+            wire.append(i)
     # print(f"Wire is {wire}")
 
     #gates
@@ -56,9 +56,81 @@ def veryread(filename):
             gate.append(temp)
 
         loc += 1
+    print(modulename, input, output, wire, gate)
+    # print(f"gate is {gate}")
+    return modulename, input, output, wire, gate
 
+def abc_veryread(filename):
+
+    with open(filename, "r") as file:
+        contents = file.read()
+
+    lines = contents.split(";")
+    # module name
+    modulename = lines[0].split("\n")[2].split("(")[0]
+    
+    # inputs
+    inputs_data = lines[1].replace(","," ").split(" ")
+    input = []
+    for i in inputs_data:
+        if (i.startswith("n")):
+            input.append(i)
+    # print(f"Input is {input}",)
+
+    # outputs
+    outputs_data = lines[2].replace(","," ").split(" ")
+    output = []
+    for i in outputs_data:
+        if (i.startswith("n")):
+            output.append(i)
+    # print(f"Output is {output}",)
+
+    # wire
+    wire_data = lines[3].replace(","," ").split(" ")
+    wire = []
+    for i in wire_data:
+        if (i.startswith("n")):
+            wire.append(i)
+    # print(f"Wire is {wire}")
+
+    #gates
+    gate = []
+
+    loc = 4
+    while True:
+        if(lines[loc].startswith("\nendmodule")):
+            break
+        temp = []
+        for i in lines[loc].replace("("," ").replace(")"," ").split(" "):
+            if (
+            i.startswith("A") or 
+            i.startswith("I") or
+            i.startswith("O") or 
+            i.startswith("N") or 
+            i.startswith("B") or 
+            i.startswith("X")):
+                temp.append(i.lower())
+            if (i.startswith("g")):
+                temp.append(i)            
+            if (i.startswith("n")):
+                temp.append(i)
+
+        if (len(temp) == 5):
+            temp = temp[0:2] + temp[4:5] + temp[2:4]
+            gate.append(temp)
+        if (len(temp) == 4):
+            temp = temp[0:2] + temp[3:] + temp[2:3] + temp[2:3]
+            gate.append(temp)
+
+        loc += 1
+    # print(modulename)
+    # print(input)
+    # print(output)
+    # print(wire)
+    # print(gate)
     # print(f"gate is {gate}")
     return modulename, input, output, wire, gate
 
 if __name__ == "__main__":
-    veryread("./ICCAD_24_A/src/readtest.v")
+    # veryread("./src/readtest.v")
+    abc_veryread("tmp/design1_abc.v")
