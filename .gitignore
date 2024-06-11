@@ -157,7 +157,7 @@ cython_debug/
 
 # Output and Temp folder
 output/
-
+tmp/
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
