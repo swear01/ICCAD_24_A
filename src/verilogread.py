@@ -1,3 +1,15 @@
+# ---------------start---------------
+# 2 functions: veryread, abc_veryread
+# -----------------------------------
+# veryread:
+# read verilog file (output, input, input)
+# ----------------------------------- 
+# abc_veryread ()
+# read verilog file (input, input, output)
+# mainly for reading verilog file produced by abc
+# ----------------end---------------
+
+
 def veryread(filename):
 
     with open(filename, "r") as file:
