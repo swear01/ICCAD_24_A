@@ -23,7 +23,7 @@ def veryread(filename):
     inputs_data = lines[1].split(" ")
     input = []
     for i in inputs_data:
-        if (i.startswith("n")):
+        if (i.startswith("n")) or (i.startswith("p")) :
             input.append(i)
     # print(f"Input is {input}",)
 
@@ -31,7 +31,7 @@ def veryread(filename):
     outputs_data = lines[2].split(" ")
     output = []
     for i in outputs_data:
-        if (i.startswith("n")):
+        if (i.startswith("n")) or (i.startswith("p")):
             output.append(i)
     # print(f"Output is {output}",)
 
@@ -85,7 +85,7 @@ def abc_veryread(filename):
     inputs_data = lines[1].replace(","," ").split(" ")
     input = []
     for i in inputs_data:
-        if (i.startswith("n")):
+        if (i.startswith("n")) or (i.startswith("p")):
             input.append(i)
     # print(f"Input is {input}",)
 
@@ -93,7 +93,7 @@ def abc_veryread(filename):
     outputs_data = lines[2].replace(","," ").split(" ")
     output = []
     for i in outputs_data:
-        if (i.startswith("n")):
+        if (i.startswith("n")) or (i.startswith("p")):
             output.append(i)
     # print(f"Output is {output}",)
 
