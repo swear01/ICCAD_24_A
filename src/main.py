@@ -21,4 +21,4 @@ output_path = "output/output.v"
 cost_estimator_path = "data/cost_estimators/cost_estimator_2"
 
 dictionary = mappingannealing.initial_mapping_determine(netlist_path, cost_estimator_path, library_path)
-mappingannealing.mapping_annealing_with_initial_determine(netlist_path, cost_estimator_path, library_path, output_path, dictionary)
+mappingannealing.mapping_annealing(netlist_path, cost_estimator_path, library_path, output_path, dictionary)
