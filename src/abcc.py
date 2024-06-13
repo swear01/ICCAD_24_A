@@ -16,7 +16,7 @@ possible_cmds = [
 "strash; orchestrate;",
 "strash; resub -lz;",
 "strash; csweep; trim;",
-"&get; &muxdec; &put;",
+# "&get; &muxdec; &put;",
 ]
 
 abc_path = "./src/abc"
@@ -51,3 +51,8 @@ if __name__ == "__main__":
     print(cmd)
     abc_exec(abc_path, cmd)
     abc_print(abc_path, out_folder, filename[:-2] + "_abc.v")
+    
+    
+    
+
+ 
