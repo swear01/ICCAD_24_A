@@ -473,7 +473,10 @@ if __name__ == "__main__":
         print("Usage: python3 mappingannealing.py <verilog_file> <cost_estimator> <library> <output.v>")
         sys.exit(1)
     
-    
+    '''
+    example usage:
+    type: python3 src/mappingannealing.py data/netlists/design1.v data/cost_estimators/cost_estimator_4 data/lib/lib1.json output/output.v
+    '''
     
     # verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     # mapping_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4])
