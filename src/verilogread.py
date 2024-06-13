@@ -68,8 +68,13 @@ def veryread(filename):
             gate.append(temp)
 
         loc += 1
-    print(modulename, input, output, wire, gate)
+    # print(modulename, input, output, wire, gate)
     # print(f"gate is {gate}")
+    # print(modulename)
+    # print(input)
+    # print(output)
+    # print(wire)
+    # print(gate)
     return modulename, input, output, wire, gate
 
 def abc_veryread(filename):
@@ -144,5 +149,5 @@ def abc_veryread(filename):
     return modulename, input, output, wire, gate
 
 if __name__ == "__main__":
-    # veryread("./src/readtest.v")
-    abc_veryread("tmp/design1_abc.v")
+    veryread("./src/readtest.v")
+    #abc_veryread("tmp/design1_abc.v")
