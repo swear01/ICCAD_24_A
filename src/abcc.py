@@ -22,7 +22,7 @@ possible_cmds = [
 abc_path = "./src/abc"
 gate_lib_path = "./data/lib/lib1.genlib"
 
-def get_random_cmd(in_folder, out_folder, gate_lib, filename):
+def get_random_cmd(in_folder, out_folder, gate_lib, filename) -> str:
     choosen = random.choice(possible_cmds)
     prefix = f"read_verilog {in_folder}{filename};"
     suffix = f"read_library {gate_lib};map;write_verilog {out_folder}{filename[:-2]}_abc.v;"
