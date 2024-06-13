@@ -32,12 +32,7 @@ def abc_exec(abc_path, cmd):
     subprocess.run([abc_path, "-c", cmd])
     
 def abc_print(abc_path, folder, filename):
-    subprocess.run([abc_path, "-c", f"read_verilog {folder}{filename}; print_stats;"])
-
-def abc_out_to_default(folder, filename):
-    with open(f"{folder}{filename}", "r") as file:
-        contents = file.read()[2:]
-    
+    abc_exec(abc_path,f"read_verilog {folder}{filename}; print_stats;")
 
 if __name__ == "__main__":
     folder = "./data/netlists/"
