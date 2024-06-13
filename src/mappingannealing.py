@@ -79,6 +79,7 @@ def mapping_annealing(netlist_path, cost_estimator_path, library_path, output_pa
     # print (wires)
     # print (gates)
     # pause = input("Press Enter to continue...")
+    # return
     with open(library_path, 'r') as file:
         data = json.load(file)  
     # count the number of each type of gate
@@ -440,7 +441,7 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
         
         neighbor_cost = get_cost(cost_estimator_path, out_folder + filename[:-2] + "_current_abc_parsed.v", library_path, "output/output.txt")
         
-        print ("neighbor cost: ", neighbor_cost)
+        # print ("neighbor cost: ", neighbor_cost)
         
         if neighbor_cost < current_cost:
             
@@ -469,14 +470,17 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
 
 if __name__ == "__main__":
     if(len(sys.argv) != 5):
-        print("Usage: python3 getinitialgatenumber.py <verilog_file> <cost_estimator> <library> <output.v>")
+        print("Usage: python3 mappingannealing.py <verilog_file> <cost_estimator> <library> <output.v>")
         sys.exit(1)
     
-    # mapping_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-    # abc_mapping_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-    # initialCost = initial_mapping(sys.argv[1], sys.argv[2], sys.argv[3])
-    # dictionary = initial_mapping_determine(sys.argv[1], sys.argv[2], sys.argv[3])
-    # mapping_annealing_with_initial_determine(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], dictionary)
-    # initial_mapping_with_assignment(sys.argv[1], sys.argv[2], sys.argv[3], dictionary)
-    verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-    mapping_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4])
+    '''
+    example usage:
+    type: python3 src/mappingannealing.py data/netlists/design1.v data/cost_estimators/cost_estimator_4 data/lib/lib1.json output/output.v
+    '''
+    
+    # verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    # mapping_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4])
+    
+    dictionary = initial_mapping_determine(sys.argv[1], sys.argv[2], sys.argv[3])
+    verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], dictionary)
+    mapping_annealing_with_initial_determine(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4], dictionary)

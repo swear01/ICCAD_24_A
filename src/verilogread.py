@@ -60,15 +60,21 @@ def veryread(filename):
             i.startswith("g") or 
             i.startswith("n") or 
             i.startswith("b") or 
-            i.startswith("x")):
+            i.startswith("x") or 
+            i.startswith("p")):
                 temp.append(i.lower())
-            if (i.startswith("g")):
-                temp.append(i)            
-            if (i.startswith("n")):
-                temp.append(i)
-            if (i.startswith("p")):
-                temp.append(i)
-
+            # if (i.startswith("g")):
+            #     temp.append(i)            
+            # if (i.startswith("n")):
+            #     temp.append(i)
+            # if (i.startswith("p")):
+            #     temp.append(i)
+        # print(f"temp is {temp}")
+        if (len(temp) == 5):
+            gate.append(temp)
+        if (len(temp) == 4):
+            temp = temp[0:] + temp[3:]
+            gate.append(temp)
 
         loc += 1
     # print(modulename, input, output, wire, gate)
