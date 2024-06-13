@@ -1,24 +1,3 @@
-''' 
-function: mapping_annealing(netlist_path, cost_estimator_path, library_path, output_path)
-this function takes in the path to the netlist file, the path to the cost estimator, 
-the path to the library file, and the path to the output file.
-returns the final cost after doing simulated annealing algorithm.
-
-function: initial_mapping(netlist_path, cost_estimator_path, library_path)
-this function takes in the path to the netlist file, the path to the cost estimator,
-and the path to the library file.
-returns the initial cost after map all gates to gate type 1 (ex: and_1, xor_1 ...) .
-
-function: initial_mapping_determine(netlist_path, cost_estimator_path, library_path)
-this function takes in the path to the netlist file, the path to the cost estimator,
-and the path to the library file.
-returns a dictionary represents the assignment of the gate type for each gate that has the lowest cost.
-
-function: initial_mapping_with_assignment(netlist_path, cost_estimator_path, library_path, gatetype_dict)
-this function takes in the path to the netlist file, the path to the cost estimator,
-the path to the library file, and the dictionary that represents the assignment of the gate type for each gate.
-returns the cost after mapping all gates to the gate type in the dictionary.
-'''
 from abcc import *
 import subprocess
 import os
@@ -63,14 +42,20 @@ def get_cost(cost_estimator_path, netlist_path, library_path, output_path):
     result = subprocess.run(command, capture_output=True, text=True)
 
     # Check for errors
+    #print("result:",result.stdout)
     match = re.search(r'cost\s*=\s*([0-9.]+)', result.stdout)
-    if match:
-        cost_value = float(match.group(1))
-        return cost_value
-    else:
+    if not match:
         raise ValueError("Cost value not found in the output.")
+    cost_value = float(match.group(1))
+    return cost_value
+        
 
 def mapping_annealing(netlist_path, cost_estimator_path, library_path, output_path):
+    '''
+    this function takes in the path to the netlist file, the path to the cost estimator, 
+    the path to the library file, and the path to the output file.
+    returns the final cost after doing simulated annealing algorithm.
+    '''
     # read the verilog file
     modulename, inputs , outputs, wires, gates = verilogread.veryread(netlist_path)
     # print (modulename)
@@ -295,6 +280,11 @@ def abc_mapping_annealing(netlist_path, cost_estimator_path, library_path, outpu
     return final_cost
 
 def initial_mapping(netlist_path, cost_estimator_path, library_path):
+    '''
+    this function takes in the path to the netlist file, the path to the cost estimator,
+    and the path to the library file.
+    returns the initial cost after map all gates to gate type 1 (ex: and_1, xor_1 ...) .
+    '''
     # read the verilog file
     modulename, inputs , outputs, wires, gates = verilogread.abc_veryread(netlist_path)
     with open(library_path, 'r') as file:
@@ -318,6 +308,11 @@ def initial_mapping(netlist_path, cost_estimator_path, library_path):
     return cost
 
 def initial_mapping_with_assignment(netlist_path, cost_estimator_path, library_path, gatetype_dict):
+    '''
+    this function takes in the path to the netlist file, the path to the cost estimator,
+    the path to the library file, and the dictionary that represents the assignment of the gate type for each gate.
+    returns the cost after mapping all gates to the gate type in the dictionary.
+    '''
     # read the verilog file
     modulename, inputs , outputs, wires, gates = verilogread.abc_veryread(netlist_path)
     with open(library_path, 'r') as file:
@@ -342,6 +337,11 @@ def initial_mapping_with_assignment(netlist_path, cost_estimator_path, library_p
     return cost
 
 def initial_mapping_determine(netlist_path, cost_estimator_path, library_path):
+    '''
+    this function takes in the path to the netlist file, the path to the cost estimator,
+    and the path to the library file.
+    returns a dictionary represents the assignment of the gate type for each gate that has the lowest cost.
+    '''
     # read the verilog file
     modulename, inputs , outputs, wires, gates = verilogread.veryread(netlist_path)
     with open(library_path, 'r') as file:

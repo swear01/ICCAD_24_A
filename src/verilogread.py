@@ -8,82 +8,39 @@
 # read verilog file (input, input, output)
 # mainly for reading verilog file produced by abc
 # ----------------end---------------
-
+import re
 
 def veryread(filename):
 
     with open(filename, "r") as file:
         contents = file.read()
-
-    lines = contents.split(";")
+        
+    contents = contents.split(";")
+    lines = [line.strip().replace('\n','') for line in contents]
     # module name
-    modulename = lines[0].split("\n")[0].split("(")[0]
+    modulename = contents[0].split("\n")[0] 
     
     # inputs
-    inputs_data = lines[1].replace(","," ").split(" ")
-    input = []
-    for i in inputs_data:
-        if (i.startswith("n")) or (i.startswith("p")) :
-            input.append(i)
-    # print(f"Input is {input}",)
+    inputs_data = lines[1].removeprefix("input").split(",")
+    input = [i.strip() for i in inputs_data ]
 
     # outputs
-    outputs_data = lines[2].replace(","," ").split(" ")
-    output = []
-    for i in outputs_data:
-        if (i.startswith("n")) or (i.startswith("p")):
-            output.append(i)
-    # print(f"Output is {output}",)
+    outputs_data = lines[2].removeprefix("output").split(",")
+    output = [i.strip() for i in outputs_data]
 
     # wire
-    wire_data = lines[3].split(" ")
-    wire = []
-    for i in wire_data:
-        if (i.startswith("n")):
-            wire.append(i)
-        if (i.startswith("p")):
-            wire.append(i)
-    # print(f"Wire is {wire}")
+    wire_data = lines[3].removeprefix("wire").split(",")
+    wire = [i.strip() for i in wire_data]
 
     #gates
     gate = []
-
-    loc = 4
-    while True:
-        if(lines[loc].startswith("\nendmodule")):
-            break
-        temp = []
-        for i in lines[loc].replace("("," ").replace(")"," ").split(" "):
-            if (
-            i.startswith("a") or 
-            i.startswith("o") or
-            i.startswith("g") or 
-            i.startswith("n") or 
-            i.startswith("b") or 
-            i.startswith("x") or 
-            i.startswith("p")):
-                temp.append(i.lower())
-            # if (i.startswith("g")):
-            #     temp.append(i)            
-            # if (i.startswith("n")):
-            #     temp.append(i)
-            # if (i.startswith("p")):
-            #     temp.append(i)
-        # print(f"temp is {temp}")
-        if (len(temp) == 5):
-            gate.append(temp)
+    for line in lines[4:-1]:
+        line = re.sub(r'[(),]', '', line)
+        temp = line.split()
         if (len(temp) == 4):
             temp = temp[0:] + temp[3:]
             gate.append(temp)
 
-        loc += 1
-    # print(modulename, input, output, wire, gate)
-    # print(f"gate is {gate}")
-    # print(modulename)
-    # print(input)
-    # print(output)
-    # print(wire)
-    # print(gate)
     return modulename, input, output, wire, gate
 
 def abc_veryread(filename):
@@ -97,26 +54,18 @@ def abc_veryread(filename):
     
     # inputs
     inputs_data = lines[1].replace(","," ").split(" ")
-    input = []
-    for i in inputs_data:
-        if (i.startswith("n")) or (i.startswith("p")):
-            input.append(i)
+    input = [i for i in inputs_data if i.startswith(("n","p"))]
+
     # print(f"Input is {input}",)
 
     # outputs
     outputs_data = lines[2].replace(","," ").split(" ")
-    output = []
-    for i in outputs_data:
-        if (i.startswith("n")) or (i.startswith("p")):
-            output.append(i)
+    output = [i for i in outputs_data if i.startswith(("n","p"))]
     # print(f"Output is {output}",)
 
     # wire
     wire_data = lines[3].replace(","," ").split(" ")
-    wire = []
-    for i in wire_data:
-        if (i.startswith("n")):
-            wire.append(i)
+    wire = [i for i in wire_data if i.startswith(("n","p"))]
     # print(f"Wire is {wire}")
 
     #gates
@@ -128,19 +77,9 @@ def abc_veryread(filename):
             break
         temp = []
         for i in lines[loc].replace("("," ").replace(")"," ").split(" "):
-            if (
-            i.startswith("A") or 
-            i.startswith("I") or
-            i.startswith("O") or 
-            i.startswith("N") or 
-            i.startswith("B") or 
-            i.startswith("X")):
+            if i.startswith(("A", "I", "O", "N", "B", "X")) :
                 temp.append(i.lower())
-            if (i.startswith("g")):
-                temp.append(i)            
-            if (i.startswith("n")):
-                temp.append(i)
-            if (i.startswith("p")):
+            if (i.startswith(("g","n","p"))):
                 temp.append(i)
 
         if (len(temp) == 5):

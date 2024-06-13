@@ -1,5 +1,5 @@
 def write_parsed_verilog(filename, modulename, inputs, outputs, gates ,gate_number_result):
-    with open(filename, "w") as file:
+    with open(filename, "w+") as file:
         inputlist = ", ".join(f"{input}" for input in inputs)
         outputlist = ", ".join(f"{output}" for output in outputs)
         file.write(modulename + " (" + inputlist + ", " + outputlist + ");\n")
@@ -15,7 +15,7 @@ def write_parsed_verilog(filename, modulename, inputs, outputs, gates ,gate_numb
         file.write('endmodule\n')
 
 def write_verilog(filename, modulename, inputs, outputs, wires, gates):
-    with open(filename, "w") as file:
+    with open(filename, "w+") as file:
         inputlist = ", ".join(f"{input}" for input in inputs)
         outputlist = ", ".join(f"{output}" for output in outputs)
         wirelist = ", ".join(f"{wire}" for wire in wires)
