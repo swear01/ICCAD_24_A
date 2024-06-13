@@ -1,5 +1,6 @@
 import abcc
 import mappingannealing
+import verilogread
 
 # Logic synthesis with abc tool and simulated annealing
 abc_path = "./src/abc"
@@ -20,5 +21,7 @@ library_path = "data/lib/lib1.json"
 output_path = "output/output.v"
 cost_estimator_path = "data/cost_estimators/cost_estimator_2"
 
-dictionary = mappingannealing.initial_mapping_determine(netlist_path, cost_estimator_path, library_path)
-mappingannealing.mapping_annealing(netlist_path, cost_estimator_path, library_path, output_path, dictionary)
+# dictionary = mappingannealing.initial_mapping_determine(netlist_path, cost_estimator_path, library_path)
+# mappingannealing.mapping_annealing(netlist_path, cost_estimator_path, library_path, output_path, dictionary)
+
+verilogread.abc_veryread("tmp/design1_abc.v")

@@ -257,22 +257,16 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
         
         modulename, inputs , outputs, wires, gates = verilogread.abc_veryread(out_folder + filename[:-2] + "_current_abc.v")
         if initial_dict is not None:
-            gate_number_result = []
-            for gate in gates:
-                gate_number_result.append(initial_dict[gate[0]])
-            parsedverilog.write_parsed_verilog(out_folder + filename[:-2] + "_current_abc_parsed.v", modulename, inputs, outputs, gates, gate_number_result)
+            gate_number_result = [initial_dict[gate[0]] for gate in gates]
         else:
-            gate_number_result = []
-            for gate in gates:
-                gate_number_result.append(1)
-            parsedverilog.write_parsed_verilog(out_folder + filename[:-2] + "_current_abc_parsed.v", modulename, inputs, outputs, gates, gate_number_result)
+            gate_number_result = [1 for gate in gates]
+        parsedverilog.write_parsed_verilog(out_folder + filename[:-2] + "_current_abc_parsed.v", modulename, inputs, outputs, gates, gate_number_result)
         
         neighbor_cost = get_cost(cost_estimator_path, out_folder + filename[:-2] + "_current_abc_parsed.v", library_path, "output/output.txt")
         if loopcount == 1:
             print ("initial cost: ", neighbor_cost)
         
         if neighbor_cost < current_cost:
-            
             parsedverilog.write_verilog(out_folder + filename[:-2] + "_current.v", modulename, inputs, outputs, wires, gates)
             current_cost = neighbor_cost
         else:
@@ -281,7 +275,7 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
                 parsedverilog.write_verilog(out_folder + filename[:-2] + "_current.v", modulename, inputs, outputs, wires, gates)
                 current_cost = neighbor_cost
         #update the temperature
-        Temperature = Temperature * reduceRate 
+        Temperature *= reduceRate 
         pbar.update(1)
     pbar.close()
     print("Stage 1 Cost: ", current_cost)
