@@ -448,7 +448,7 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
             parsedverilog.write_verilog(out_folder + filename[:-2] + "_current.v", modulename, inputs, outputs, wires, gates)
             current_cost = neighbor_cost
         else:
-            if random.random() < 0.1 * pow(2.71828, (current_cost - neighbor_cost) / Temperature):
+            if random.random() < 0.05 * pow(2.71828, (current_cost - neighbor_cost) / Temperature):
                 # uphill move
                 parsedverilog.write_verilog(out_folder + filename[:-2] + "_current.v", modulename, inputs, outputs, wires, gates)
                 current_cost = neighbor_cost
