@@ -19,6 +19,7 @@ this function takes in the path to the netlist file, the path to the cost estima
 the path to the library file, and the dictionary that represents the assignment of the gate type for each gate.
 returns the cost after mapping all gates to the gate type in the dictionary.
 '''
+from abcc import *
 import subprocess
 import os
 import re
@@ -47,6 +48,9 @@ def convert_to_wsl_path(path):
 
 def get_cost(cost_estimator_path, netlist_path, library_path, output_path):
     # Construct the WSL command
+    # print("Cost Estimator Path: ", cost_estimator_path)
+    # print("Netlist Path: ", netlist_path)
+    # print("Library Path: ", library_path)
     command = [
         # 'wsl',  # Use WSL to run the command
         cost_estimator_path,
@@ -285,7 +289,7 @@ def abc_mapping_annealing(netlist_path, cost_estimator_path, library_path, outpu
 
 def initial_mapping(netlist_path, cost_estimator_path, library_path):
     # read the verilog file
-    modulename, inputs , outputs, wires, gates = verilogread.veryread(netlist_path)
+    modulename, inputs , outputs, wires, gates = verilogread.abc_veryread(netlist_path)
     with open(library_path, 'r') as file:
         data = json.load(file)  
     
@@ -308,7 +312,7 @@ def initial_mapping(netlist_path, cost_estimator_path, library_path):
 
 def initial_mapping_with_assignment(netlist_path, cost_estimator_path, library_path, gatetype_dict):
     # read the verilog file
-    modulename, inputs , outputs, wires, gates = verilogread.veryread(netlist_path)
+    modulename, inputs , outputs, wires, gates = verilogread.abc_veryread(netlist_path)
     with open(library_path, 'r') as file:
         data = json.load(file)  
     
@@ -378,6 +382,80 @@ def initial_mapping_determine(netlist_path, cost_estimator_path, library_path):
     
     return mapping_dict
 
+def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, initial_dict = None):
+    
+    # Simulated Annealing parameters
+    initialTemperature = 1000.0
+    Temperature = initialTemperature
+    minTemperature = 0.001
+    reduceRate = 0.99
+    
+    #define costs
+    neighbor_cost = 0
+    current_cost = float('inf')
+    final_cost = current_cost
+    
+    #progress bar
+    pbar = tqdm(total=math.ceil(math.fabs(math.log(Temperature/minTemperature)/math.log(reduceRate))))
+
+    folder = netlist_path[:netlist_path.rfind('/')+1]
+    # out folder = "./tmp/"
+    out_folder = "./tmp/"
+    #filename = os.listdir(folder)[0]
+    filename = netlist_path[netlist_path.rfind('/')+1:]
+    gate_lib_path = "./data/lib/lib1.genlib"
+    assert filename.endswith(".v")
+    
+    shutil.copy(netlist_path, "./tmp/"+ filename[:-2] + "_current.v")
+    
+    while Temperature > minTemperature:
+        # get the initial state and initial cost
+        
+        cmd = get_random_cmd(out_folder, out_folder, gate_lib_path, filename[:-2] + "_current.v")
+        print("\n\nCommand = ", cmd)
+        abc_exec(abc_path, cmd)
+        abc_print(abc_path, out_folder, filename[:-2] + "_current_abc.v")
+        
+        modulename, inputs , outputs, wires, gates = verilogread.abc_veryread(out_folder + filename[:-2] + "_current_abc.v")
+        if initial_dict is not None:
+            gate_number_result = []
+            for gate in gates:
+                gate_number_result.append(initial_dict[gate[0]])
+            parsedverilog.write_parsed_verilog(out_folder + filename[:-2] + "_current_abc_parsed.v", modulename, inputs, outputs, gates, gate_number_result)
+        else:
+            gate_number_result = []
+            for gate in gates:
+                gate_number_result.append(1)
+            parsedverilog.write_parsed_verilog(out_folder + filename[:-2] + "_current_abc_parsed.v", modulename, inputs, outputs, gates, gate_number_result)
+        
+        neighbor_cost = get_cost(cost_estimator_path, out_folder + filename[:-2] + "_current_abc_parsed.v", library_path, "output/output.txt")
+        if initial_dict is not None:
+            initial_mapping_with_assignment(out_folder + filename[:-2] + "_abc.v", cost_estimator_path, library_path, initial_dict)
+        else:
+            initial_mapping(out_folder + filename[:-2] + "_abc.v", cost_estimator_path, library_path)
+        
+        
+        if neighbor_cost < current_cost:
+            print ("neighbor cost: ", neighbor_cost)
+            shutil.copy(out_folder + filename[:-2] + "_abc.v", out_folder + filename[:-2] + "_current.v")
+            current_cost = neighbor_cost
+        else:
+            if random.random() < pow(2.71828, (current_cost - neighbor_cost) / Temperature):
+                # uphill move
+                shutil.copy(out_folder + filename[:-2] + "_abc.v", out_folder + filename[:-2] + "_current.v")
+                current_cost = neighbor_cost
+        #update the temperature
+        Temperature = Temperature * reduceRate 
+        pbar.update(1)
+    pbar.close()
+    print("Final Cost: ", final_cost)
+    
+    if os.path.isfile("output/output.txt"):
+        os.remove("output/output.txt")
+    
+    return final_cost
+
+
 if __name__ == "__main__":
     if(len(sys.argv) != 5):
         print("Usage: python3 getinitialgatenumber.py <verilog_file> <cost_estimator> <library> <output.v>")
@@ -386,7 +464,7 @@ if __name__ == "__main__":
     # mapping_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     # abc_mapping_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     # initialCost = initial_mapping(sys.argv[1], sys.argv[2], sys.argv[3])
-    dictionary = initial_mapping_determine(sys.argv[1], sys.argv[2], sys.argv[3])
-    mapping_annealing_with_initial_determine(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], dictionary)
-    
+    # dictionary = initial_mapping_determine(sys.argv[1], sys.argv[2], sys.argv[3])
+    # mapping_annealing_with_initial_determine(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], dictionary)
     # initial_mapping_with_assignment(sys.argv[1], sys.argv[2], sys.argv[3], dictionary)
+    abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
