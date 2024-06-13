@@ -38,7 +38,7 @@ filename = "src/gate/b.v"
 modulename = "module top_1598227639_809568180_776209382_1234615" 
 inputs = ["n1" , "n2"]
 outputs = ["n3"]
-cost_estimator_path = "data/cost_estimators/cost_estimator_1"
+cost_estimator_path = "data/cost_estimators/cost_estimator_7"
 tempmapping_path = "src/gate/b.v"
 library_path = "data/lib/lib1.json"
 
@@ -57,9 +57,9 @@ for i in range(6):
             print(n)
     best_gate[i] = best_number
 
-output_file_path = 'gate/gate_cost.json'
+output_file_path = 'src/gate/gate_cost.json'
 with open(output_file_path, 'w') as json_file:
     json.dump(gate_cost, json_file)
-output_file_path = 'gate/best_gate.json'
+output_file_path = 'src/gate/best_gate.json'
 with open(output_file_path, 'w') as json_file:
     json.dump(best_gate, json_file)

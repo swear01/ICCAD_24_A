@@ -36,7 +36,7 @@ filename = "src/gate/b.v"
 modulename = "module top_1598227639_809568180_776209382_1234615" 
 inputs = ["n1" , "n2" , "n4" , "n5"]
 outputs = ["n7"]
-cost_estimator_path = "data/cost_estimators/cost_estimator_1"
+cost_estimator_path = "data/cost_estimators/cost_estimator_7"
 tempmapping_path = "src/gate/b.v"
 library_path = "data/lib/lib1.json"
 
@@ -54,6 +54,7 @@ for i, j in combinations_with_replacement(range(6),2):
                     gate_number_result = [l, m, n]
                     parsedverilog.write_parsed_verilog(filename, modulename, inputs, outputs, gates ,gate_number_result)
                     cost = getCost(cost_estimator_path, tempmapping_path, library_path, "output.txt")
+                    print(cost)
                     map_data[i][j][k][l-1][m-1][n-1] = cost
                     if best_cost > cost:
                         best_cost = cost
