@@ -136,6 +136,7 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
         # abc_print(abc_path, out_folder, filename[:-2] + "_current_abc.v")
         
         modulename, inputs , outputs, wires, gates = verilog_read.read_verilog(out_folder + filename[:-2] + "_current.v")
+        
         if initial_dict is not None:
             gate_number_result = [initial_dict[gate[0]] for gate in gates]
         else:

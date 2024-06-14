@@ -22,7 +22,7 @@ def write_verilog(filename, modulename, inputs, outputs, wires, gates, mode : Li
         inputlist = ", ".join(f"{input}" for input in inputs)
         outputlist = ", ".join(f"{output}" for output in outputs)
         wirelist = ", ".join(f"{wire}" for wire in wires)
-        file.write(modulename + "(" + inputlist + ", " + outputlist + ");\n")
+        file.write(modulename + "\n(" + inputlist + ", " + outputlist + ");\n")
         file.write("  input " + inputlist + ';' + '\n')
         file.write("  output " + outputlist + ';' + '\n')
         if wires: file.write("  wire " + wirelist + ';' + '\n')
