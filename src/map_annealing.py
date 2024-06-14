@@ -100,7 +100,7 @@ def map_annealing(netlist_path, cost_estimator_path,
 def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, initial_dict = None):
     
     # Simulated Annealing parameters
-    initialTemperature = 10.0
+    initialTemperature = 100.0
     Temperature = initialTemperature
     minTemperature = 0.1
     reduceRate = 0.8
