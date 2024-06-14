@@ -24,8 +24,3 @@ library_path = "data/lib/lib1.json"
 output_path = "output/output.v"
 cost_estimator_path = "data/cost_estimators/cost_estimator_2"
 
-dictionary = map_annealing.initial_mapping_determine(netlist_path, cost_estimator_path, library_path)
-map_annealing.map_annealing(netlist_path, cost_estimator_path, library_path, output_path, dictionary)
-
-read_verilog("tmp/design1_abc.v")
-pick_singlegate.get_cost(cost_estimator_path, "tmp/design1_abc.v", library_path, output_path)

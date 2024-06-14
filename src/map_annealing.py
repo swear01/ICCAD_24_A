@@ -11,7 +11,8 @@ import shutil
 from tqdm import tqdm
 import math
 
-from utils import count_gate, convert_to_wsl_path, get_cost
+from utils import count_gate, convert_to_wsl_path, get_cost, gate_list
+from pick_singlegate import find_initial_mapping
 
 # Function to recursively search for the string "and" in the JSON data
 
@@ -28,7 +29,6 @@ def map_annealing(netlist_path, cost_estimator_path,
     with open(library_path, 'r') as file:
         data = json.load(file)  
     # count the number of each type of gate
-    gate_list = ['and', 'or', 'xor', 'nand', 'nor', 'xnor', 'not', 'buf']
     typesofgate = {gate: count_gate(data,gate) for gate in gate_list}
     #assign initial gate number to each gate
     gate_number_result = []
@@ -96,91 +96,6 @@ def map_annealing(netlist_path, cost_estimator_path,
         os.remove("output/output.txt")
     
     return final_cost
-
-def initial_mapping(netlist_path, cost_estimator_path, library_path, gatetype_dict = None):
-    '''
-    this function takes in the path to the netlist file, the path to the cost estimator,
-    the path to the library file, and the dictionary that represents the assignment of the gate type for each gate.
-    returns the cost after mapping all gates to the gate type in the dictionary.
-    '''
-    # read the verilog file
-    modulename, inputs , outputs, wires, gates = verilog_read.abc_read_verilog(netlist_path)
-    with open(library_path, 'r') as file:
-        data = json.load(file)  
-    
-    # assign the gate number of the gate type to each gate
-    gate_number_result = []
-    
-    if gatetype_dict :
-        for gate in gates:
-            gate_number_result.append(gatetype_dict[gate[0]])  
-    else:
-        for gate in gates:
-            gate_number_result.append(1)
-    
-    # get the cost
-    tmpmapping_path = "tmp/initialtmpmapping.v"
-    verilog_write.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
-    cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
-    print("Cost: ", cost)
-    
-    if os.path.isfile(tmpmapping_path):
-        os.remove(tmpmapping_path)
-    if os.path.isfile("output/output.txt"):
-        os.remove("output/output.txt")
-    
-    return cost
-
-def initial_mapping_determine(netlist_path, cost_estimator_path, library_path):
-    '''
-    this function takes in the path to the netlist file, the path to the cost estimator,
-    and the path to the library file.
-    returns a dictionary represents the assignment of the gate type for each gate that has the lowest cost.
-    '''
-    # read the verilog file
-    modulename, inputs , outputs, wires, gates = verilog_read.read_verilog(netlist_path)
-    with open(library_path, 'r') as file:
-        data = json.load(file)  
-    # count the number of each type of gate
-    
-    gate_number_result = []
-    for gate in gates:
-        gate_number_result.append(1)  
-    
-    mapping_dict = {'and' : 1, 'or'   : 1, 'xor' : 1, 'nand' : 1,
-                    'nor' : 1, 'xnor' : 1, 'not' : 1, 'buf'  : 1}
-    gate_list = ['and', 'or', 'xor', 'nand', 'nor', 'xnor', 'not', 'buf']
-    typesofgate = {gate: count_gate(data,gate) for gate in gate_list}
-    
-    # get the initial state and initial cost
-    tmpmapping_path = "tmp/tmpinitialmapping.v"
-    verilog_write.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
-    cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
-    print("Initial Cost: ", cost)
-    
-    for key in mapping_dict:
-        for num in range(1,typesofgate[key]+1):
-            for gate in gates:
-                if gate[0] == key:
-                    gate_number_result[gates.index(gate)] = num
-            verilog_write.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
-            new_cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
-            if new_cost < cost:
-                cost = new_cost
-                mapping_dict[key] = num
-        for gate in gates:
-            if gate[0] == key:
-                gate_number_result[gates.index(gate)] = mapping_dict[key]
-    
-    print("Final Cost = ", cost)
-    # print(mapping_dict)
-    
-    if os.path.isfile(tmpmapping_path):
-        os.remove(tmpmapping_path)
-    if os.path.isfile("output/output.txt"):
-        os.remove("output/output.txt")
-    
-    return mapping_dict
 
 def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, initial_dict = None):
     
@@ -254,7 +169,6 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
     
     return out_folder + filename[:-2] + "_current.v"
 
-
 if __name__ == "__main__":
     if(len(sys.argv) != 5):
         print("Usage: python3 mappingannealing.py <verilog_file> <cost_estimator> <library> <output.v>")
@@ -267,7 +181,7 @@ if __name__ == "__main__":
     
     # verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     # map_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4])
-    
-    dictionary = initial_mapping_determine(sys.argv[1], sys.argv[2], sys.argv[3])
+    module_name, _, _, _, _ = verilog_read.read_verilog(sys.argv[1])
+    dictionary = find_initial_mapping(module_name, sys.argv[2], sys.argv[3])
     verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], dictionary)
     map_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4], dictionary)
