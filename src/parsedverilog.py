@@ -1,3 +1,5 @@
+from typing import Literal
+
 def write_parsed_verilog(filename, modulename, inputs, outputs, gates ,gate_number_result):
     with open(filename, "w+") as file:
         inputlist = ", ".join(f"{input}" for input in inputs)
@@ -14,7 +16,7 @@ def write_parsed_verilog(filename, modulename, inputs, outputs, gates ,gate_numb
                 file.write("  " + gates[i][0] + "_" + str(gate_number_result[i]) +" "+ gates[i][1] + "(" + gates[i][4] + "," + gates[i][2] + ");\n")
         file.write('endmodule\n')
 
-def write_verilog(filename, modulename, inputs, outputs, wires, gates):
+def write_verilog(filename, modulename, inputs, outputs, wires, gates, mode : Literal["oi", "io"] = "oi"):
     with open(filename, "w+") as file:
         inputlist = ", ".join(f"{input}" for input in inputs)
         outputlist = ", ".join(f"{output}" for output in outputs)
@@ -22,10 +24,16 @@ def write_verilog(filename, modulename, inputs, outputs, wires, gates):
         file.write(modulename + "(" + inputlist + ", " + outputlist + ");\n")
         file.write("  input " + inputlist + ';' + '\n')
         file.write("  output " + outputlist + ';' + '\n')
-        file.write("  wire " + wirelist + ';' + '\n')
+        if wires: file.write("  wire " + wirelist + ';' + '\n')
         for i in range(0, len(gates)):
-            if gates[i][0] != 'not' and gates[i][0] != 'buf':
-                file.write("  " + gates[i][0] +" "+ gates[i][1] + " ( " + gates[i][2] + " , " + gates[i][3] + " , " + gates[i][4] + " ) ;\n")
-            else:
-                file.write("  " + gates[i][0] +" "+ gates[i][1] + " ( " + gates[i][2] + " , " + gates[i][4] + " ) ;\n")
+            if mode == "oi":
+                if gates[i][0].startswith(("not", "buf")):
+                    file.write("  " + gates[i][0] +" "+ gates[i][1] + " ( " + gates[i][2] + " , " + gates[i][3] + " ) ;\n")
+                else:
+                    file.write("  " + gates[i][0] +" "+ gates[i][1] + " ( " + gates[i][2] + " , " + gates[i][3] + " , " + gates[i][4] + " ) ;\n")
+            else: # mode ="io"
+                if gates[i][0].startswith(("not", "buf")):
+                    file.write("  " + gates[i][0] +" "+ gates[i][1] + " ( " + gates[i][4] + " , " + gates[i][2] + " ) ;\n")
+                else:
+                    file.write("  " + gates[i][0] +" "+ gates[i][1] + " ( " + gates[i][3] + " , " + gates[i][4] + " , " + gates[i][2] + " ) ;\n")
         file.write('endmodule\n')
