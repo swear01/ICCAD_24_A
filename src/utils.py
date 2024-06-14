@@ -3,6 +3,52 @@ import subprocess
 
 gate_list: list[str] = ["and", "or", "nand", "nor", "xor", "xnor", "not", "buf"]
 
+# possible_cmds = [
+# "strash; balance;",
+# "strash; rewrite -l;",
+# "strash; rewrite -lz;",
+# "strash; dsd; strash;",
+# "strash; iresyn -l;",
+# "strash; dc2 -bl;",
+# "strash; refactor -N 15 -lz;",
+# "strash; orchestrate;",
+# "strash; resub -lz;",
+# "strash; csweep; trim;",
+# # "&get; &muxdec; &put;",
+# ]
+
+possible_cmds = [
+"src_rw      ;",
+"src_rs      ;",
+"src_rws     ;",
+"resyn2rs    ;",
+"r2rs        ;",
+"compress2rs ;",
+"c2rs        ;",
+"resyn2rs   ;",
+"compress2rs;",
+"resyn       ;",
+"resyn2      ;",
+"resyn2a     ;",
+"resyn3      ;",
+"compress    ;",
+"compress2   ;",
+"choice      ;",
+"choice2     ;",
+"rwsat       ;",
+"drwsat2     ;",
+"share       ;",
+# "addinit     ;",
+"blif2aig    ;",
+# "v2p         ;",
+# "g2p         ;",
+# "&sw_        ;",
+# "&fx_        ;",
+# "&dc3        ;",
+# "&dc4        ;",
+"rec_start3; recadd3     ;",
+]
+
 def is_single_gate(gate:str) -> bool:
     '''
     check if the gate is a single gate

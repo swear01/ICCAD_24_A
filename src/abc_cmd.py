@@ -6,52 +6,8 @@ import os
 import random
 from verilog_read import abc_read_verilog
 from verilog_write import write_verilog
+from utils import possible_cmds
 
-# possible_cmds = [
-# "strash; balance;",
-# "strash; rewrite -l;",
-# "strash; rewrite -lz;",
-# "strash; dsd; strash;",
-# "strash; iresyn -l;",
-# "strash; dc2 -bl;",
-# "strash; refactor -N 15 -lz;",
-# "strash; orchestrate;",
-# "strash; resub -lz;",
-# "strash; csweep; trim;",
-# # "&get; &muxdec; &put;",
-# ]
-
-possible_cmds = [
-"src_rw      ;",
-"src_rs      ;",
-"src_rws     ;",
-"resyn2rs    ;",
-"r2rs        ;",
-"compress2rs ;",
-"c2rs        ;",
-"resyn2rs   ;",
-"compress2rs;",
-"resyn       ;",
-"resyn2      ;",
-"resyn2a     ;",
-"resyn3      ;",
-"compress    ;",
-"compress2   ;",
-"choice      ;",
-"choice2     ;",
-"rwsat       ;",
-"drwsat2     ;",
-"share       ;",
-# "addinit     ;",
-"blif2aig    ;",
-# "v2p         ;",
-# "g2p         ;",
-# "&sw_        ;",
-# "&fx_        ;",
-# "&dc3        ;",
-# "&dc4        ;",
-"rec_start3; recadd3     ;",
-]
 abc_path = "./src/abc"
 gate_lib_path = "./data/lib/lib1.genlib"
 
