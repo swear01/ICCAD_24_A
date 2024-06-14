@@ -22,43 +22,42 @@ from verilog_write import write_verilog
 # ]
 
 possible_cmds = [
-"src_rw      ",
-"src_rs      ",
-"src_rws     ",
-"resyn2rs    ",
-"r2rs        ",
-"compress2rs ",
-"c2rs        ",
-"&resyn2rs   ",
-"&compress2rs",
-"resyn       ",
-"resyn2      ",
-"resyn2a     ",
-"resyn3      ",
-"compress    ",
-"compress2   ",
-"choice      ",
-"choice2     ",
-"rwsat       ",
-"drwsat2     ",
-"share       ",
-"addinit     ",
-"blif2aig    ",
-"v2p         ",
-"g2p         ",
-"&sw_        ",
-"&fx_        ",
-"&dc3        ",
-"&dc4        ",
-"recadd3     ",
+"src_rw      ;",
+"src_rs      ;",
+"src_rws     ;",
+"resyn2rs    ;",
+"r2rs        ;",
+"compress2rs ;",
+"c2rs        ;",
+"resyn2rs   ;",
+"compress2rs;",
+"resyn       ;",
+"resyn2      ;",
+"resyn2a     ;",
+"resyn3      ;",
+"compress    ;",
+"compress2   ;",
+"choice      ;",
+"choice2     ;",
+"rwsat       ;",
+"drwsat2     ;",
+"share       ;",
+# "addinit     ;",
+"blif2aig    ;",
+# "v2p         ;",
+# "g2p         ;",
+# "&sw_        ;",
+# "&fx_        ;",
+# "&dc3        ;",
+# "&dc4        ;",
+"rec_start3; recadd3     ;",
 ]
-
 abc_path = "./src/abc"
 gate_lib_path = "./data/lib/lib1.genlib"
 
 def get_random_cmd(in_folder, out_folder, gate_lib, filename) -> str:
     choosen = random.choice(possible_cmds)
-    prefix = f"read_verilog {in_folder}{filename};"
+    prefix = f"read_verilog {in_folder}{filename};strash;"
     suffix = f"read_library {gate_lib};map;write_verilog {out_folder}{filename[:-2]}_abc.v;"
     return prefix + choosen + suffix
 
