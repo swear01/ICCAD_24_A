@@ -4,8 +4,9 @@
 import subprocess
 import re
 import json
+import os
 import parsedverilog
-from itertools import combinations_with_replacement
+from utils import is_single_gate, gate_list, number_of_choices
 
 def getCost(cost_estimator_path, netlist_path, library_path, output_path):
     # Construct the WSL command
@@ -18,48 +19,43 @@ def getCost(cost_estimator_path, netlist_path, library_path, output_path):
     ]
     
     result = subprocess.run(command, capture_output=True, text=True)
-
+    
     # Check for errors
     match = re.search(r'cost\s*=\s*([0-9.]+)', result.stdout)
-    if match:
-        cost_value = float(match.group(1))
-        return cost_value
-    else:
+    if not match:
         raise ValueError("Cost value not found in the output.")
+    cost_value = float(match.group(1))
+    return cost_value
+        
 
-dim1, dim2 = 6, 8
-
-gate_cost = [[100  for _ in range(dim2)] for _ in range(dim1)]
-best_gate = [100 for _ in range(dim1)]
-target_gate = ["and", "or", "nand", "nor", "xor", "xnor"]
-gate_types_num = [8, 8, 8, 8, 6, 6]
-
-filename = "src/gate/b.v"
+filename = "data/gate/tmp.v"
 modulename = "module top_1598227639_809568180_776209382_1234615" 
-inputs = ["n1" , "n2"]
-outputs = ["n3"]
-cost_estimator_path = "data/cost_estimators/cost_estimator_7"
-tempmapping_path = "src/gate/b.v"
+cost_estimator_path = "data/cost_estimators/cost_estimator_1"
 library_path = "data/lib/lib1.json"
+tmp_output_path = "data/gate/output.txt"
 
-for i in range(6):
-    gates = [[target_gate[i], "g0", "n3", "n1", "n2"]]        
-    temp = 100
-    best_number = 0       
-    for n in range(1,gate_types_num[i] + 1):
-        gate_number_result = [n]
-        parsedverilog.write_parsed_verilog(filename, modulename, inputs, outputs, gates ,gate_number_result)
-        cost = getCost(cost_estimator_path, tempmapping_path, library_path, "output.txt")
-        gate_cost[i][n-1] = cost
-        if temp > cost:
-            temp = cost
-            best_number = n
-            print(n)
-    best_gate[i] = best_number
 
-output_file_path = 'src/gate/gate_cost.json'
-with open(output_file_path, 'w') as json_file:
-    json.dump(gate_cost, json_file)
-output_file_path = 'src/gate/best_gate.json'
+best_gate =  {}
+choices = number_of_choices(json.load(open(library_path)))
+for gate in gate_list:
+    costs = []
+    if is_single_gate(gate):
+        inputs, outputs = ["n1"], ["n3"]
+        gates = [[f"{gate}_{i}", "g0", "n1", "n3"] for i in range(1, choices[gate] + 1)]
+    else:
+        inputs, outputs = ["n1" , "n2"], ["n3"]
+        gates = [[f"{gate}_{i}", "g0", "n1", "n2", "n3"] for i in range(1, choices[gate] + 1)]
+                    
+    for gate_i in gates:
+        parsedverilog.write_verilog(filename, modulename, inputs, outputs, [], [gate_i])
+        cost = getCost(cost_estimator_path, filename, library_path, tmp_output_path)
+        costs.append(cost)
+    best_number = costs.index(min(costs)) + 1
+    best_gate[gate] = best_number
+
+output_file_path = './data/gate/best_single_gate.json'
 with open(output_file_path, 'w') as json_file:
     json.dump(best_gate, json_file)
+    
+os.remove(filename)
+os.remove(tmp_output_path)

@@ -1,6 +1,8 @@
 import abcc
 import mappingannealing
 import verilogread
+import pick_greedy_threegate
+import pick_singlegate
 
 # Logic synthesis with abc tool and simulated annealing
 abc_path = "./src/abc"
@@ -25,3 +27,4 @@ cost_estimator_path = "data/cost_estimators/cost_estimator_2"
 # mappingannealing.mapping_annealing(netlist_path, cost_estimator_path, library_path, output_path, dictionary)
 
 verilogread.abc_veryread("tmp/design1_abc.v")
+pick_singlegate.getCost(cost_estimator_path, netlist_path, library_path, output_path)
