@@ -4,10 +4,8 @@ import map_annealing
 from verilog_read import abc_read_verilog, read_verilog
 from verilog_write import write_verilog
 import pick_singlegate
-=======
 import verilog_read
 import pick_singlegate
->>>>>>> cf010a8 (main not done yet)
 
 # greedy
     
@@ -55,4 +53,3 @@ cost_estimator_path = "data/cost_estimators/cost_estimator_2"
 verilog_read.abc_read_verilog("tmp/design1_abc.v")
 pick_singlegate.get_cost(cost_estimator_path, netlist_path, library_path, output_path)
 '''
->>>>>>> cf010a8 (main not done yet)
