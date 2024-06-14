@@ -15,7 +15,7 @@ from utils import count_gate, convert_to_wsl_path, get_cost
 
 # Function to recursively search for the string "and" in the JSON data
 
-def mapping_annealing(netlist_path, cost_estimator_path, 
+def map_annealing(netlist_path, cost_estimator_path, 
                       library_path, output_path,
                       determine_dict = None):
     '''
@@ -266,8 +266,8 @@ if __name__ == "__main__":
     '''
     
     # verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-    # mapping_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4])
+    # map_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4])
     
     dictionary = initial_mapping_determine(sys.argv[1], sys.argv[2], sys.argv[3])
     verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], dictionary)
-    mapping_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4], dictionary)
+    map_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4], dictionary)

@@ -6,7 +6,7 @@ import re
 import json
 import os
 import verilog_write
-from utils import is_single_gate, gate_list, number_of_choices
+from utils import is_single_gate, gate_list, number_of_choices, get_cost
 
 filename = "data/gate/tmp.v"
 modulename = "module top_1598227639_809568180_776209382_1234615" 
