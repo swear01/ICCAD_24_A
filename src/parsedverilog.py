@@ -1,4 +1,5 @@
 from typing import Literal
+from utils import is_single_gate
 
 def write_parsed_verilog(filename, modulename, inputs, outputs, gates ,gate_number_result):
     with open(filename, "w+") as file:
@@ -27,12 +28,12 @@ def write_verilog(filename, modulename, inputs, outputs, wires, gates, mode : Li
         if wires: file.write("  wire " + wirelist + ';' + '\n')
         for i in range(0, len(gates)):
             if mode == "oi":
-                if gates[i][0].startswith(("not", "buf")):
+                if is_single_gate(gates[i][0]):
                     file.write("  " + gates[i][0] +" "+ gates[i][1] + " ( " + gates[i][2] + " , " + gates[i][3] + " ) ;\n")
                 else:
                     file.write("  " + gates[i][0] +" "+ gates[i][1] + " ( " + gates[i][2] + " , " + gates[i][3] + " , " + gates[i][4] + " ) ;\n")
             else: # mode ="io"
-                if gates[i][0].startswith(("not", "buf")):
+                if is_single_gate(gates[i][0]):
                     file.write("  " + gates[i][0] +" "+ gates[i][1] + " ( " + gates[i][4] + " , " + gates[i][2] + " ) ;\n")
                 else:
                     file.write("  " + gates[i][0] +" "+ gates[i][1] + " ( " + gates[i][3] + " , " + gates[i][4] + " , " + gates[i][2] + " ) ;\n")
