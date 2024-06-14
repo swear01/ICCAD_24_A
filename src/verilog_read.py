@@ -1,5 +1,5 @@
 import re
-def veryread(filename):
+def read_verilog(filename):
     '''
     read verilog file (output, input, input)
     '''
@@ -35,7 +35,7 @@ def veryread(filename):
 
     return modulename, input, output, wire, gate
 
-def abc_veryread(filename):
+def abc_read_verilog(filename):
     '''
     read verilog file (input, input, output)
     mainly for reading verilog file produced by abc
@@ -82,5 +82,5 @@ def abc_veryread(filename):
     return modulename, input, output, wire, gate
 
 if __name__ == "__main__":
-    veryread("./src/readtest.v")
-    #abc_veryread("tmp/design1_abc.v")
+    read_verilog("./src/readtest.v")
+    #abc_read_verilog("tmp/design1_abc.v")

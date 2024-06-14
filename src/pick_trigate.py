@@ -6,29 +6,10 @@ import re
 import json
 import os
 import numpy as np
-import parsedverilog
+import verilog_write
 from itertools import product
 from tqdm import tqdm
-from utils import is_single_gate, gate_list, number_of_choices
-
-def getCost(cost_estimator_path, netlist_path, library_path, output_path):
-    # Construct the WSL command
-    command = [
-        # 'wsl',  # Use WSL to run the command
-        cost_estimator_path,
-        '-netlist', netlist_path,
-        '-library', library_path,
-        '-output', output_path
-    ]
-    
-    result = subprocess.run(command, capture_output=True, text=True)
-    
-    # Check for errors
-    match = re.search(r'cost\s*=\s*([0-9.]+)', result.stdout)
-    if not match:
-        raise ValueError("Cost value not found in the output.")
-    cost_value = float(match.group(1))
-    return cost_value
+from utils import is_single_gate, gate_list, number_of_choices, get_cost
 
 def arrange_gates(level1, level2):
     '''
@@ -85,8 +66,8 @@ for this_gate, in1_gate, in2_gate in tqdm(list(product(gate_list,repeat=3))):
                 level1 = [f"{in1_gate}_{type_1}"]
                 level2 = [f"{this_gate}_{type_this}"]
                 inputs, outputs, wires, gates = arrange_gates(level1, level2)
-                parsedverilog.write_verilog(filename, modulename, inputs, outputs, wires, gates)
-                cost = getCost(cost_estimator_path, filename, library_path, tmp_output_path)
+                verilog_write.write_verilog(filename, modulename, inputs, outputs, wires, gates)
+                cost = get_cost(cost_estimator_path, filename, library_path, tmp_output_path)
                 costs.append(cost)
             best_number = costs.index(min(costs)) + 1
             best_gate[f"{this_gate}_{in1_gate}"][type_1-1] = best_number
@@ -98,8 +79,8 @@ for this_gate, in1_gate, in2_gate in tqdm(list(product(gate_list,repeat=3))):
                 level1 = [f"{in1_gate}_{type1}",f"{in2_gate}_{type2}"]
                 level2 = [f"{this_gate}_{type_this}"] 
                 inputs, outputs, wires, gates = arrange_gates(level1, level2)
-                parsedverilog.write_verilog(filename, modulename, inputs, outputs, wires, gates)
-                cost = getCost(cost_estimator_path, filename, library_path, tmp_output_path)
+                verilog_write.write_verilog(filename, modulename, inputs, outputs, wires, gates)
+                cost = get_cost(cost_estimator_path, filename, library_path, tmp_output_path)
                 costs.append(cost)
             best_number = costs.index(min(costs)) + 1
             best_gate[f"{this_gate}_{in1_gate}_{in2_gate}"][type1-1][type2-1] = best_number
