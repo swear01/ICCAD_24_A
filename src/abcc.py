@@ -4,6 +4,8 @@
 import subprocess
 import os 
 import random
+from verilogread import abc_veryread
+from parsedverilog import write_verilog
 
 possible_cmds = [
 "strash; balance;",
@@ -45,6 +47,8 @@ if __name__ == "__main__":
     cmd = get_random_cmd(folder, out_folder, gate_lib_path, filename)
     print(cmd)
     abc_exec(abc_path, cmd)
+    write_verilog(out_folder + filename[:-2] + "_abc.v" ,*abc_veryread(out_folder + filename[:-2] + "_abc.v"))
+    
     abc_print(abc_path, out_folder, filename[:-2] + "_abc.v")
     
     
