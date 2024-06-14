@@ -181,6 +181,7 @@ if __name__ == "__main__":
     
     # verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     # map_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4])
+    
     module_name, _, _, _, _ = verilog_read.read_verilog(sys.argv[1])
     dictionary = find_initial_mapping(module_name, sys.argv[2], sys.argv[3])
     verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], dictionary)

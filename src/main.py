@@ -1,6 +1,6 @@
 import abc_cmd
 import map_annealing
-<<<<<<< HEAD
+
 from verilog_read import abc_read_verilog, read_verilog
 from verilog_write import write_verilog
 import pick_singlegate
@@ -45,8 +45,7 @@ library_path = "data/lib/lib1.json"
 output_path = "output/output.v"
 cost_estimator_path = "data/cost_estimators/cost_estimator_2"
 
-<<<<<<< HEAD
-=======
+
 # dictionary = mappingannealing.initial_mapping_determine(netlist_path, cost_estimator_path, library_path)
 # mappingannealing.mapping_annealing(netlist_path, cost_estimator_path, library_path, output_path, dictionary)
 
