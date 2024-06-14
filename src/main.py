@@ -6,10 +6,11 @@ from verilog_write import write_verilog
 import pick_singlegate
 =======
 import verilog_read
+import pick_singlegate
 >>>>>>> cf010a8 (main not done yet)
 
 # greedy
-
+    
 #
 for i in range(1,7):
     for j in range(1,9):
