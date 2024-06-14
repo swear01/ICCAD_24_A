@@ -8,7 +8,7 @@ import os
 import verilog_write
 from utils import is_single_gate, gate_list, number_of_choices, get_cost
 
-filename = "data/gate/tmp.v"
+filename = "tmp/tmp.v"
 modulename = "module top_1598227639_809568180_776209382_1234615" 
 cost_estimator_path = "data/cost_estimators/cost_estimator_1"
 library_path = "data/lib/lib1.json"

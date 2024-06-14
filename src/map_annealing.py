@@ -78,7 +78,7 @@ def map_annealing(netlist_path, cost_estimator_path,
             current_cost = neighbor_cost
             if neighbor_cost < final_cost:
                 final_cost = neighbor_cost
-                shutil.copy(tmpmapping_path, sys.argv[4])
+                shutil.copy(tmpmapping_path, output_path)
         else:
             if random.random() < pow(2.71828, (current_cost - neighbor_cost) / Temperature):
                 # uphill move
@@ -135,7 +135,7 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
         abc_exec(abc_path, cmd)
         # abc_print(abc_path, out_folder, filename[:-2] + "_current_abc.v")
         
-        modulename, inputs , outputs, wires, gates = verilog_read.abc_read_verilog(out_folder + filename[:-2] + "_current_abc.v")
+        modulename, inputs , outputs, wires, gates = verilog_read.read_verilog(out_folder + filename[:-2] + "_current.v")
         if initial_dict is not None:
             gate_number_result = [initial_dict[gate[0]] for gate in gates]
         else:
@@ -170,19 +170,19 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
     return out_folder + filename[:-2] + "_current.v"
 
 if __name__ == "__main__":
-    if(len(sys.argv) != 5):
-        print("Usage: python3 mappingannealing.py <verilog_file> <cost_estimator> <library> <output.v>")
-        sys.exit(1)
-    
     '''
     example usage:
     type: python3 src/mappingannealing.py data/netlists/design1.v data/cost_estimators/cost_estimator_4 data/lib/lib1.json output/output.v
     '''
     
-    # verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-    # map_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4])
+    # verilog_file_path = abc_annealing(netlist_path, cost_estimator_path, library_path, output_path)
+    # map_annealing(verilog_file_path, cost_estimator_path, library_path, output_path)
+    netlist_path = "data/netlists/design1.v"
+    cost_estimator_path = "data/cost_estimators/cost_estimator_4"
+    library_path = "data/lib/lib1.json"
+    output_path = "output/output.v"
     
-    module_name, _, _, _, _ = verilog_read.read_verilog(sys.argv[1])
-    dictionary = find_initial_mapping(module_name, sys.argv[2], sys.argv[3])
-    verilog_file_path = abc_annealing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], dictionary)
-    map_annealing(verilog_file_path, sys.argv[2], sys.argv[3], sys.argv[4], dictionary)
+    module_name, _, _, _, _ = verilog_read.read_verilog(netlist_path)
+    dictionary = find_initial_mapping(module_name, cost_estimator_path, library_path)
+    verilog_file_path = abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, dictionary)
+    map_annealing(verilog_file_path, cost_estimator_path, library_path, output_path, dictionary)

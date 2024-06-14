@@ -68,9 +68,8 @@ def abc_read_verilog(filename):
             break
         temp = []
         for i in line.replace("("," ").replace(")"," ").split(" "):
-            if i.startswith(("a", "i", "o", "n", "b", "x","g","n","p")) :
-                temp.append(i)
-
+            if i.startswith(("A", "I", "O", "N", "B", "X","g","n","p")) :
+                temp.append(i.lower())
         if (len(temp) == 5):
             temp = temp[0:2] + temp[4:5] + temp[2:4]
 
