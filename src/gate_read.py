@@ -25,7 +25,7 @@ def read_gate(filename):
     
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python gateread.py <filename>")
+        print("Usage: python gate_read.py <filename>")
         sys.exit(1)
     filename = sys.argv[1]
     gateList = read_gate(filename)

@@ -1,54 +1,19 @@
-from abcc import *
+from abc_cmd import *
 import subprocess
 import os
 import re
-import verilogread
+import verilog_read
 import sys
 import random
 import json
-import parsedverilog
+import verilog_write
 import shutil
 from tqdm import tqdm
 import math
 
+from utils import count_gate, convert_to_wsl_path, get_cost
+
 # Function to recursively search for the string "and" in the JSON data
-def count_gate(data, typeofgate):
-    count = 0
-    for cell in data['cells']:
-        # Check if the cell_type is 'and'
-        if cell['cell_type'] == typeofgate:
-            count += 1
-    return count
-
-def convert_to_wsl_path(path):
-    drive, path = os.path.splitdrive(path)
-    path = path.replace('\\', '/')
-    return f'/mnt/{drive[0].lower()}{path}'
-
-def get_cost(cost_estimator_path, netlist_path, library_path, output_path):
-    # Construct the WSL command
-    # print("Cost Estimator Path: ", cost_estimator_path)
-    # print("Netlist Path: ", netlist_path)
-    # print("Library Path: ", library_path)
-    command = [
-        # 'wsl',  # Use WSL to run the command
-        cost_estimator_path,
-        '-netlist', netlist_path,
-        '-library', library_path,
-        '-output', output_path
-    ]
-    # print (command)
-    # Run the command
-    result = subprocess.run(command, capture_output=True, text=True)
-
-    # Check for errors
-    # print("result:",result.stdout)
-    match = re.search(r'cost\s*=\s*([0-9.]+)', result.stdout)
-    if not match:
-        raise ValueError("Cost value not found in the output.")
-    cost_value = float(match.group(1))
-    return cost_value
-        
 
 def mapping_annealing(netlist_path, cost_estimator_path, 
                       library_path, output_path,
@@ -59,7 +24,7 @@ def mapping_annealing(netlist_path, cost_estimator_path,
     returns the final cost after doing simulated annealing algorithm.
     '''
     # read the verilog file
-    modulename, inputs , outputs, wires, gates = verilogread.veryread(netlist_path)
+    modulename, inputs , outputs, wires, gates = verilog_read.read_verilog(netlist_path)
     with open(library_path, 'r') as file:
         data = json.load(file)  
     # count the number of each type of gate
@@ -77,7 +42,7 @@ def mapping_annealing(netlist_path, cost_estimator_path,
     
     # get the initial state and initial cost
     tmpmapping_path = "tmp/tmpmapping.v"
-    parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
+    verilog_write.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
     current_cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
     print("Initial Cost: ", current_cost)
     
@@ -104,7 +69,7 @@ def mapping_annealing(netlist_path, cost_estimator_path,
             index = random.randint(0, lengthOfGates - 1)
             new_gate_number_result[index] = random.randint(1,typesofgate[gates[index][0]])
         # get the final_cost of the new state
-        parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, new_gate_number_result)
+        verilog_write.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, new_gate_number_result)
         neighbor_cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
         
         #compare the final_cost with the current_cost
@@ -139,7 +104,7 @@ def initial_mapping(netlist_path, cost_estimator_path, library_path, gatetype_di
     returns the cost after mapping all gates to the gate type in the dictionary.
     '''
     # read the verilog file
-    modulename, inputs , outputs, wires, gates = verilogread.abc_veryread(netlist_path)
+    modulename, inputs , outputs, wires, gates = verilog_read.abc_read_verilog(netlist_path)
     with open(library_path, 'r') as file:
         data = json.load(file)  
     
@@ -155,7 +120,7 @@ def initial_mapping(netlist_path, cost_estimator_path, library_path, gatetype_di
     
     # get the cost
     tmpmapping_path = "tmp/initialtmpmapping.v"
-    parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
+    verilog_write.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
     cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
     print("Cost: ", cost)
     
@@ -173,7 +138,7 @@ def initial_mapping_determine(netlist_path, cost_estimator_path, library_path):
     returns a dictionary represents the assignment of the gate type for each gate that has the lowest cost.
     '''
     # read the verilog file
-    modulename, inputs , outputs, wires, gates = verilogread.veryread(netlist_path)
+    modulename, inputs , outputs, wires, gates = verilog_read.read_verilog(netlist_path)
     with open(library_path, 'r') as file:
         data = json.load(file)  
     # count the number of each type of gate
@@ -189,7 +154,7 @@ def initial_mapping_determine(netlist_path, cost_estimator_path, library_path):
     
     # get the initial state and initial cost
     tmpmapping_path = "tmp/tmpinitialmapping.v"
-    parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
+    verilog_write.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
     cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
     print("Initial Cost: ", cost)
     
@@ -198,7 +163,7 @@ def initial_mapping_determine(netlist_path, cost_estimator_path, library_path):
             for gate in gates:
                 if gate[0] == key:
                     gate_number_result[gates.index(gate)] = num
-            parsedverilog.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
+            verilog_write.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
             new_cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
             if new_cost < cost:
                 cost = new_cost
@@ -255,24 +220,24 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
         abc_exec(abc_path, cmd)
         # abc_print(abc_path, out_folder, filename[:-2] + "_current_abc.v")
         
-        modulename, inputs , outputs, wires, gates = verilogread.abc_veryread(out_folder + filename[:-2] + "_current_abc.v")
+        modulename, inputs , outputs, wires, gates = verilog_read.abc_read_verilog(out_folder + filename[:-2] + "_current_abc.v")
         if initial_dict is not None:
             gate_number_result = [initial_dict[gate[0]] for gate in gates]
         else:
             gate_number_result = [1 for gate in gates]
-        parsedverilog.write_parsed_verilog(out_folder + filename[:-2] + "_current_abc_parsed.v", modulename, inputs, outputs, gates, gate_number_result)
+        verilog_write.write_parsed_verilog(out_folder + filename[:-2] + "_current_abc_parsed.v", modulename, inputs, outputs, gates, gate_number_result)
         
         neighbor_cost = get_cost(cost_estimator_path, out_folder + filename[:-2] + "_current_abc_parsed.v", library_path, "output/output.txt")
         if loopcount == 1:
             print ("initial cost: ", neighbor_cost)
         
         if neighbor_cost < current_cost:
-            parsedverilog.write_verilog(out_folder + filename[:-2] + "_current.v", modulename, inputs, outputs, wires, gates)
+            verilog_write.write_verilog(out_folder + filename[:-2] + "_current.v", modulename, inputs, outputs, wires, gates)
             current_cost = neighbor_cost
         else:
             if random.random() < 0.05 * pow(2.71828, (current_cost - neighbor_cost) / Temperature):
                 # uphill move
-                parsedverilog.write_verilog(out_folder + filename[:-2] + "_current.v", modulename, inputs, outputs, wires, gates)
+                verilog_write.write_verilog(out_folder + filename[:-2] + "_current.v", modulename, inputs, outputs, wires, gates)
                 current_cost = neighbor_cost
         #update the temperature
         Temperature *= reduceRate 
