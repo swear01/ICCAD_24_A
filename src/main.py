@@ -6,23 +6,47 @@ from verilog_write import write_verilog
 import pick_singlegate
 import verilog_read
 import pick_singlegate
+import json
+jsonfile = open("performance_record/rec.json",'r')
+file = json.load(jsonfile)
+abc_cost_record = file["abc_cost_record"]
+final_cost_record = file["final_cost_record"]
+jsonfile.close()
 
-# greedy
-    
-#
-for i in range(1,7):
+for i in range(1,2):
     for j in range(1,9):
         print(i,j)
-        s1 = "data/netlists/design" + str(i) + ".v"
-        s2 = "data/cost_estimators/cost_estimator_" + str(j)
-        s3 = "data/lib/lib1.json"
-        s4 = "output/output.v"
+        netlist_path = "data/netlists/design" + str(i) + ".v"
+        cost_estimator_path = "data/cost_estimators/cost_estimator_" + str(j)
+        library_path = "data/lib/lib1.json"
+        output_path = "output/output.v"
         # verilog_file_path = abc_annealing(s1, s2, s3, s4)
         # mapping_annealing(verilog_file_path, s2, s3, s4)
+        module_name, _, _, _, _ = verilog_read.read_verilog(netlist_path)
+        dictionary = map_annealing.find_initial_mapping(module_name, cost_estimator_path, library_path)
+        verilog_file_path, initial_cost_stage_one, final_cost_stage_one  = map_annealing.abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, dictionary, progress_bar= True)
+        initial_cost_stage_two, final_cost_stage_two = map_annealing.map_annealing(verilog_file_path, cost_estimator_path, library_path, output_path, dictionary, progress_bar = True)
+        print("to be compared", final_cost_stage_two)
 
-        dictionary = map_annealing.initial_mapping_determine(s1, s2, s3)
-        verilog_file_path = map_annealing.abc_annealing(s1, s2, s3, s4, dictionary)
-        map_annealing.mapping_annealing(verilog_file_path, s2, s3, s4, dictionary)
+        if final_cost_stage_one < abc_cost_record[i-1][j-1][0]:
+            abc_cost_record[i-1][j-1] = [final_cost_stage_one, final_cost_stage_two]   
+        
+        if final_cost_stage_two < final_cost_record[i-1][j-1][1]:
+            final_cost_record[i-1][j-1] = [final_cost_stage_one, final_cost_stage_two]
+        
+        data = {
+            "abc_cost_record": abc_cost_record,
+            "final_cost_record": final_cost_record
+        }
+        
+        # print(data)
+        with open("performance_record/rec.json", 'w') as json_file:
+            json.dump(data, json_file, indent = 4)
+        json_file.close()
+
+
+
+
 
 '''
 # Logic synthesis with abc tool and simulated annealing

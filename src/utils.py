@@ -1,5 +1,6 @@
 import re
 import subprocess
+import os
 
 gate_list: list[str] = ["and", "or", "nand", "nor", "xor", "xnor", "not", "buf"]
 
@@ -103,3 +104,10 @@ def get_cost(cost_estimator_path, netlist_path, library_path, output_path):
         raise ValueError("Cost value not found in the output.")
     cost_value = float(match.group(1))
     return cost_value
+
+class DummyPbar:
+    def update(self, n):
+        pass
+
+    def close(self):
+        pass

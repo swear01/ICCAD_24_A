@@ -17,8 +17,9 @@ def get_random_cmd(in_folder, out_folder, gate_lib, filename) -> str:
     suffix = f"read_library {gate_lib};map;write_verilog {out_folder}{filename[:-2]}_abc.v;"
     return prefix + choosen + suffix
 
-def abc_exec(abc_path, cmd):
-    subprocess.run([abc_path, "-c", cmd])
+def abc_exec(abc_path, cmd): # without command outputs
+    subprocess.run([abc_path, "-c", cmd], stdout = subprocess.DEVNULL,
+    stderr = subprocess.DEVNULL) 
     
 def abc_print(abc_path, folder, filename):
     abc_exec(abc_path,f"read_verilog {folder}{filename}; print_stats;")

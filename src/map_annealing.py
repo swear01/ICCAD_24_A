@@ -10,6 +10,7 @@ import verilog_write
 import shutil
 from tqdm import tqdm
 import math
+from utils import DummyPbar
 
 from utils import count_gate, convert_to_wsl_path, get_cost, gate_list
 from pick_singlegate import find_initial_mapping
@@ -18,12 +19,13 @@ from pick_singlegate import find_initial_mapping
 
 def map_annealing(netlist_path, cost_estimator_path, 
                       library_path, output_path,
-                      determine_dict = None):
+                      determine_dict = None, progress_bar = True):
     '''
     this function takes in the path to the netlist file, the path to the cost estimator, 
     the path to the library file, and the path to the output file.
     returns the final cost after doing simulated annealing algorithm.
     '''
+
     # read the verilog file
     modulename, inputs , outputs, wires, gates = verilog_read.read_verilog(netlist_path)
     with open(library_path, 'r') as file:
@@ -44,7 +46,9 @@ def map_annealing(netlist_path, cost_estimator_path,
     tmpmapping_path = "tmp/tmpmapping.v"
     verilog_write.write_parsed_verilog(tmpmapping_path, modulename, inputs, outputs, gates, gate_number_result)
     current_cost = get_cost(cost_estimator_path, tmpmapping_path, library_path, "output/output.txt")
-    print("Initial Cost: ", current_cost)
+
+    initial_cost_stage_two = current_cost
+    print("initial_cost_stage_two: ", initial_cost_stage_two)    
     
     # Simulated Annealing parameters
     initialTemperature = 1000.0
@@ -58,8 +62,12 @@ def map_annealing(netlist_path, cost_estimator_path,
     final_cost = current_cost
     #create a copy of the initial mapping so that we can copy the best mapping to the output file
     shutil.copy(tmpmapping_path, output_path)
-    #progress bar
-    pbar = tqdm(total=math.ceil(math.fabs(math.log(Temperature/minTemperature)/math.log(reduceRate))))
+    
+    #progress bar, may to not show
+    if progress_bar:
+        pbar = tqdm(total=math.ceil(math.fabs(math.log(Temperature/minTemperature)/math.log(reduceRate))))
+    if not progress_bar:
+        pbar = DummyPbar()
     
     while Temperature > minTemperature:
         # create a new gate number result
@@ -88,16 +96,19 @@ def map_annealing(netlist_path, cost_estimator_path,
         Temperature = Temperature * reduceRate 
         pbar.update(1)
     pbar.close()
-    print("Final Cost: ", final_cost)
     
+    final_cost_stage_two = final_cost
+    print("Final Cost: ", final_cost_stage_two)    
+    
+    #redundant file deletion
     if os.path.isfile(tmpmapping_path):
         os.remove(tmpmapping_path)
     if os.path.isfile("output/output.txt"):
         os.remove("output/output.txt")
     
-    return final_cost
+    return initial_cost_stage_two, final_cost_stage_two
 
-def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, initial_dict = None):
+def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, initial_dict = None, progress_bar = True):
     
     # Simulated Annealing parameters
     initialTemperature = 100.0
@@ -110,8 +121,11 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
     current_cost = float('inf')
     final_cost = current_cost
     
-    #progress bar
-    pbar = tqdm(total=math.ceil(math.fabs(math.log(Temperature/minTemperature)/math.log(reduceRate))))
+    #progress bar, may to not show
+    if progress_bar:
+        pbar = tqdm(total=math.ceil(math.fabs(math.log(Temperature/minTemperature)/math.log(reduceRate))))
+    if not progress_bar:
+        pbar = DummyPbar()
 
     folder = netlist_path[:netlist_path.rfind('/')+1]
     # out folder = "./tmp/"
@@ -141,12 +155,14 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
             gate_number_result = [initial_dict[gate[0]] for gate in gates]
         else:
             gate_number_result = [1 for gate in gates]
+        
         verilog_write.write_parsed_verilog(out_folder + filename[:-2] + "_current_abc_parsed.v", modulename, inputs, outputs, gates, gate_number_result)
         
         neighbor_cost = get_cost(cost_estimator_path, out_folder + filename[:-2] + "_current_abc_parsed.v", library_path, "output/output.txt")
         if loopcount == 1:
-            print ("initial cost: ", neighbor_cost)
-        
+            initial_cost_stage_one = neighbor_cost
+            print ("initial_cost_stage_one: ", initial_cost_stage_one)
+            
         if neighbor_cost < current_cost:
             verilog_write.write_verilog(out_folder + filename[:-2] + "_current.v", modulename, inputs, outputs, wires, gates)
             current_cost = neighbor_cost
@@ -159,7 +175,8 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
         Temperature *= reduceRate 
         pbar.update(1)
     pbar.close()
-    print("Stage 1 Cost: ", current_cost)
+    final_cost_stage_one = current_cost
+    print("Stage 1 Cost: ", final_cost_stage_one)
     
     if os.path.isfile("output/output.txt"):
         os.remove("output/output.txt")
@@ -168,7 +185,7 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
     if os.path.isfile(out_folder + filename[:-2] + "_current_abc_parsed.v"):
         os.remove(out_folder + filename[:-2] + "_current_abc_parsed.v")
     
-    return out_folder + filename[:-2] + "_current.v"
+    return out_folder + filename[:-2] + "_current.v", initial_cost_stage_one, final_cost_stage_one
 
 if __name__ == "__main__":
     '''
@@ -185,5 +202,5 @@ if __name__ == "__main__":
     
     module_name, _, _, _, _ = verilog_read.read_verilog(netlist_path)
     dictionary = find_initial_mapping(module_name, cost_estimator_path, library_path)
-    verilog_file_path = abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, dictionary)
-    map_annealing(verilog_file_path, cost_estimator_path, library_path, output_path, dictionary)
+    verilog_file_path, initial_cost, stage_one_cost = abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, dictionary, progress_bar= True)
+    map_annealing(verilog_file_path, cost_estimator_path, library_path, output_path, dictionary, progress_bar = True)
