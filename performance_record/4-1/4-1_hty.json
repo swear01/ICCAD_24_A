@@ -1,0 +1,29 @@
+{
+    "benchmark": 1,
+    "history": [
+        [
+            "first_stage_cost",
+            "second_stage_cost",
+            "benchmark",
+            "SA1type",
+            "SA1temperature",
+            "SA2type",
+            "SA2temperature",
+            "SA1best",
+            "SA2best"
+        ],
+        [
+            [
+                553.091284,
+                553.091284,
+                1,
+                "SA1type",
+                100,
+                "SA2type",
+                1000,
+                true,
+                true
+            ]
+        ]
+    ]
+}

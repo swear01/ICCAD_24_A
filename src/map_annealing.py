@@ -17,9 +17,7 @@ from pick_singlegate import find_initial_mapping
 
 # Function to recursively search for the string "and" in the JSON data
 
-def map_annealing(netlist_path, cost_estimator_path, 
-                      library_path, output_path,
-                      determine_dict = None, progress_bar = True):
+def map_annealing(netlist_path, cost_estimator_path, library_path, output_path, determine_dict = None, progress_bar = True):
     '''
     this function takes in the path to the netlist file, the path to the cost estimator, 
     the path to the library file, and the path to the output file.
