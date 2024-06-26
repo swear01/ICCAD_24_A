@@ -1,6 +1,55 @@
 {
-    "benchmark": 0,
-    "history": [["first_stage_cost", "second_stage_cost", "benchmark",
-     "SA1type","SA1temperature","SA2type","SA2temperature","SA1best","SA2best"]]
-
+    "benchmark": 3,
+    "history": [
+        [
+            "first_stage_cost",
+            "second_stage_cost",
+            "benchmark",
+            "SA1type",
+            "SA1temperature",
+            "SA2type",
+            "SA2temperature",
+            "SA1best",
+            "SA2best"
+        ],
+        [
+            [
+                1.455316,
+                1.321251,
+                1,
+                "SA1type",
+                100,
+                "SA2type",
+                0.01,
+                false,
+                true
+            ]
+        ],
+        [
+            [
+                1.455316,
+                1.343797,
+                2,
+                "SA1type",
+                100,
+                "SA2type",
+                0.01,
+                false,
+                false
+            ]
+        ],
+        [
+            [
+                1.455316,
+                1.418542,
+                3,
+                "SA1type",
+                100,
+                "SA2type",
+                0.01,
+                false,
+                false
+            ]
+        ]
+    ]
 }

@@ -14,17 +14,16 @@ abc_cost_record = file["abc_cost_record"]
 final_cost_record = file["final_cost_record"]
 jsonfile.close()
 
-for times in range(10):
-    for i in range(1,2):
-        for j in range(2,3):
+for times in range(3):
+    for i in range(2,7):
+        for j in range(1,9):
             netlist = str(i)
             estimator = str(j)
             netlist_path = "data/netlists/design" + str(i) + ".v"
             cost_estimator_path = "data/cost_estimators/cost_estimator_" + str(j)
             library_path = "data/lib/lib1.json"
             output_path = "output/output.v"
-            initial_temperature_2 = 1000000000.0
-
+            initial_temperature_2 = 0.01
 
             # get benchmark and history
             history_file = f"performance_record/{netlist}-{estimator}/{netlist}-{estimator}_hty.json"
