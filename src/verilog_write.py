@@ -1,5 +1,5 @@
 from typing import Literal
-from utils import is_single_gate
+from .utils import is_single_gate
 
 def write_parsed_verilog(filename, modulename, inputs, outputs, gates ,gate_number_result):
     with open(filename, "w+") as file:

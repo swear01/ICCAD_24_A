@@ -1,11 +1,7 @@
-import abc_cmd
-import map_annealing
+from src import abc_cmd, map_annealing, pick_singlegate, verilog_read
+from src.verilog_read import abc_read_verilog, read_verilog
+from src.verilog_write import write_verilog
 import shutil
-from verilog_read import abc_read_verilog, read_verilog
-from verilog_write import write_verilog
-import pick_singlegate
-import verilog_read
-import pick_singlegate
 import json
 
 jsonfile = open("performance_record/rec.json",'r')

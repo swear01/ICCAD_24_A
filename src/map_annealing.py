@@ -1,20 +1,14 @@
-from abc_cmd import *
-import subprocess
 import os
-import re
-import verilog_read
-import sys
 import random
 import json
-import verilog_write
 import shutil
 from tqdm import tqdm
 import math
-from utils import DummyPbar
-import csv
-
-from utils import count_gate, convert_to_wsl_path, get_cost, gate_list
-from pick_singlegate import find_initial_mapping
+from . import verilog_write
+from .abc_cmd import *
+from . import verilog_read
+from .utils import DummyPbar, count_gate, convert_to_wsl_path, get_cost, gate_list
+from .pick_singlegate import find_initial_mapping
 
 # Function to recursively search for the string "and" in the JSON data
 

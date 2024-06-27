@@ -1,5 +1,5 @@
 {
-    "benchmark": 3,
+    "benchmark": 4,
     "history": [
         [
             "first_stage_cost",
@@ -47,6 +47,19 @@
                 100,
                 "SA2type",
                 1000,
+                false,
+                false
+            ]
+        ],
+        [
+            [
+                1.007502,
+                1.007502,
+                4,
+                "SA1type",
+                100,
+                "SA2type",
+                0.01,
                 false,
                 false
             ]
