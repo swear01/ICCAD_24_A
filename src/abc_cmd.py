@@ -4,9 +4,9 @@
 import subprocess
 import os 
 import random
-from verilog_read import abc_read_verilog
-from verilog_write import write_verilog
-from utils import possible_cmds
+from .verilog_read import abc_read_verilog
+from .verilog_write import write_verilog
+from .utils import possible_cmds
 
 abc_path = "./src/abc"
 gate_lib_path = "./data/lib/lib1.genlib"
