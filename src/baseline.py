@@ -1,20 +1,9 @@
 from abc_cmd import *
-import subprocess
-import os
-import re
 import verilog_read
-import sys
-import random
-import json
 import verilog_write
 import shutil
-from tqdm import tqdm
-import math
-from utils import DummyPbar
 import csv
-
-from utils import count_gate, convert_to_wsl_path, get_cost, gate_list
-from pick_singlegate import find_initial_mapping
+from utils import  get_cost
 
 
 cost_arr = []

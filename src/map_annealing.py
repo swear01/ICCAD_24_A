@@ -7,7 +7,7 @@ import math
 from . import verilog_write
 from .abc_cmd import *
 from . import verilog_read
-from .utils import DummyPbar, count_gate, convert_to_wsl_path, get_cost, gate_list
+from .utils import DummyPbar, count_gate, get_cost, gate_list
 from .pick_singlegate import find_initial_mapping
 
 # Function to recursively search for the string "and" in the JSON data
@@ -121,11 +121,8 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
         pbar = DummyPbar()
 
     folder = netlist_path[:netlist_path.rfind('/')+1]
-    # out folder = "./tmp/"
     out_folder = "./tmp/"
-    #filename = os.listdir(folder)[0]
     filename = netlist_path[netlist_path.rfind('/')+1:]
-    # print("Filename: ", filename)
     gate_lib_path = "./data/lib/lib1.genlib"
     assert filename.endswith(".v")
     
@@ -134,14 +131,9 @@ def abc_annealing(netlist_path, cost_estimator_path, library_path, output_path, 
     loopcount = 0
     while Temperature > minTemperature:
         loopcount += 1
-        # print("\nLoop Count: ", loopcount,"\n")
         # get the initial state and initial cost
-        
         cmd = get_random_cmd(out_folder, out_folder, gate_lib_path, filename[:-2] + "_current.v")
-        # print("\nCommand = ", cmd, "\n")
         abc_exec(abc_path, cmd)
-        # abc_print(abc_path, out_folder, filename[:-2] + "_current_abc.v")
-        
         modulename, inputs , outputs, wires, gates = verilog_read.read_verilog(out_folder + filename[:-2] + "_current.v")
         
         if initial_dict is not None:

@@ -1,8 +1,6 @@
 # -------------------------------------------------------------------------------------------------
 # Find the best assignment of each type of gates
 # -------------------------------------------------------------------------------------------------
-import subprocess
-import re
 import json
 import os
 from . import verilog_write

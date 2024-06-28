@@ -1,7 +1,5 @@
 import json
-import os
 import sys
-#include <tuple>
 
 def read_gate(filename):
     # Read the gate file
@@ -10,10 +8,6 @@ def read_gate(filename):
     cell_num = int(data["information"]["cell_num"])
     attribute_num = int(data["information"]["attribute_num"])
     attributes = data["information"]["attributes"]
-    # print(attributes)
-    # print(attributes[0])
-    # print("Cell number: ", cell_num)
-    # print("Attribute number: ", attribute_num)
     gateList = [[data["cells"][i][attributes[j]] 
                 for j in range(attribute_num)
                 ]for i in range(cell_num)

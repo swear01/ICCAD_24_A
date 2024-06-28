@@ -1,6 +1,4 @@
-from src import abc_cmd, map_annealing, pick_singlegate, verilog_read
-from src.verilog_read import abc_read_verilog, read_verilog
-from src.verilog_write import write_verilog
+from src import map_annealing,  verilog_read
 import shutil
 import json
 
@@ -72,7 +70,6 @@ for i in range(1,7):
             "final_cost_record": final_cost_record
         }
         
-        # print(data)
         with open("performance_record/rec.json", 'w') as json_file:
             json.dump(data, json_file, indent = 4)
         json_file.close()

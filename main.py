@@ -1,5 +1,3 @@
-from src.verilog_read import abc_read_verilog, read_verilog
-from src.verilog_write import write_verilog
 from src import verilog_read, map_annealing
 import argparse
 

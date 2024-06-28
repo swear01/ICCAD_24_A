@@ -1,8 +1,6 @@
 # Interface For Batch Mode ABC
 # type: ignore
-
-import subprocess
-import os 
+import subprocess 
 import random
 from .verilog_read import abc_read_verilog
 from .verilog_write import write_verilog
@@ -26,9 +24,7 @@ def abc_print(abc_path, folder, filename):
 
 if __name__ == "__main__":
     folder = "./data/netlists/"
-    #folder = "./tmp/"
     out_folder = "./tmp/"
-    #filename = os.listdir(folder)[0]
     filename = "design1.v"
     gate_lib_path = "./data/lib/lib1.genlib"
     assert filename.endswith(".v")
