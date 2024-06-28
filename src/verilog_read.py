@@ -11,7 +11,6 @@ def read_verilog(filename):
     lines = [line.strip().replace('\n','') for line in contents]
     # module name
     modulename = contents[0].split("\n")[0].strip().removesuffix("(")
-    # print("Modname = " , modulename)
     
     # inputs
     inputs_data = lines[1].removeprefix("input").split(",")

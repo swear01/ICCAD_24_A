@@ -83,9 +83,6 @@ def convert_to_wsl_path(path):
 
 def get_cost(cost_estimator_path, netlist_path, library_path, output_path):
     # Construct the WSL command
-    # print("Cost Estimator Path: ", cost_estimator_path)
-    # print("Netlist Path: ", netlist_path)
-    # print("Library Path: ", library_path)
     command = [
         # 'wsl',  # Use WSL to run the command
         cost_estimator_path,
@@ -93,12 +90,10 @@ def get_cost(cost_estimator_path, netlist_path, library_path, output_path):
         '-library', library_path,
         '-output', output_path
     ]
-    # print (command)
     # Run the command
     result = subprocess.run(command, capture_output=True, text=True)
 
     # Check for errors
-    # print("result:",result.stdout)
     match = re.search(r'cost\s*=\s*([0-9.]+)', result.stdout)
     if not match:
         raise ValueError("Cost value not found in the output.")

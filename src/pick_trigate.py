@@ -1,11 +1,8 @@
 # -------------------------------------------------------------------------------------------------
 # Find the best assignment of each type of gates
 # -------------------------------------------------------------------------------------------------
-import subprocess
-import re
 import json
 import os
-import numpy as np
 import verilog_write
 from itertools import product
 from tqdm import tqdm
