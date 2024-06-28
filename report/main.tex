@@ -38,37 +38,41 @@ Taipei, Taiwan. \\
 
 \begin{abstract}
 This is the final report of Introduction to Electronic Design Automation, using simulated annealing technique to resolve problem A of ICCAD contest 2024.
-The overall process contains two parts: logic synthesis and technology mapping. We use Berkeley ABC tool to do logic synthesis, and applied our process to design1.v in the benchmark of the ICCAD contest. We found that to some cost estimators, logic synthesis parts can have great performance, but technology mapping does not affect much. While for other cost estimators, logic synthesis process does not have significant impact, while technology mapping performs well.
+The overall process comprises two main phases: logic synthesis and technology mapping. Logic synthesis was conducted using the Berkeley ABC tool, applied specifically to design1-6.v within the ICCAD contest benchmark. Our evaluation revealed that certain cost estimators show significant performance improvements during the logic synthesis phase, whereas technology mapping exhibited minimal impact. Conversely, other cost estimators indicated that the logic synthesis phase had negligible effects, while technology mapping performed admirably.
 \end{abstract}
 
 \begin{IEEEkeywords}
-simulated annealing, logic synthesis, handsome oniontow
+simulated annealing, logic synthesis, handsome but somewhat stupid oniontow
 \end{IEEEkeywords}
 
 \section{Problem Description}
 
-We are given a specified netlist in verilog format, a cell library in json-liked format that contains parameters of some primitive gates, and a black-box cost estimator.
+We have been provided with a specified netlist in Verilog format, a cell library in a JSON-like format containing parameters for various primitive gates, and a black-box cost estimator.
 
 \subsection{Netlist}
 
 The input netlist is a flattened netlist in Verilog format without hierarchy (one top module only).\\
-The netlist is composed of:\\
-1. primitive gates (and, or, nand, nor, not, buf, xor, xnor)\\
-2. wires\\
-3. constant values (1’b1, 1’b0)\\
+The netlist is composed of:
+\begin{itemize}
+    \item primitive gates (and, or, nand, nor, not, buf, xor, xnor)
+    \item wires
+    \item constant values (1’b1, 1’b0)
+\end{itemize}
 All primitive gates are assumed to have only 2 inputs and 1 output
 except for buffer and not gates, which have only 1 input and 1 output.
 All primary inputs and primary outputs are scalars (i.e., one-bit signals)\\
 
 \subsection{Cell library}
 
-For each primitive gate, at least one cell exists in the cell library.\\
-The first section is information (a json object) with three properties. The first property is cell\_num, which states the number of cells in the cell library. The second property is attribute\_num, which states the number of attributes in each cell. The third property is attributes, in which there are
-attribute\_num strings in the json-array denoting the property names of the
-attributes of each cell.
-The second section is cells, which is a json array. There are exactly
-\#cell\_num cells described in this section. For each cell, exactly
-\#attribute\_num properties are specified. Fig. 1 shows an example of part of the cell library.
+For each primitive gate, there exists at least one corresponding cell in the cell library. The document comprises two main sections, each structured as a JSON object. The first section includes three properties: cell\_num, attribute\_num, and attributes.
+\begin{itemize}
+\item cell\_num: Indicates the total number of cells available in the library.
+\item attribute\_num: Specifies the number of attributes associated with each cell.
+\item attributes: A JSON array listing the attribute names for each cell.
+\end{itemize}
+The second section, labeled cells, is also represented as a JSON array. This section contains exactly cell\_num entries, each detailing exactly attribute\_num properties. An illustrative excerpt from the cell library is provided in Figure 1.
+
+The second section is cells, which is a JSON array. There are exactly \#cell\_num cells described in this section. For each cell, exactly \#attribute\_num properties are specified. Fig. 1 shows an example of part of the cell library.
 \begin{figure}
     \centering
     \includegraphics[width=0.6\linewidth]{example of cell library.png}
@@ -76,20 +80,15 @@ The second section is cells, which is a json array. There are exactly
     \label{fig:enter-label}
 \end{figure}
 
-\subsection{Cost function estimator}
-The cost function estimator is an executable file, which takes 2 input files and generates 1 output file. The input files are a cell library and a netlist. All the gates in the netlist should be specified by the cell library. The output file contains a floating number which denotes the cost of the netlist.
+\subsection{Cost Function Estimator}
+
+The cost function estimator is an executable file that accepts two input files and produces one output file. The input files consist of a cell library and a netlist, where all gates in the netlist are defined by the cell library. The resulting output file provides a floating-point number representing the cost associated with the netlist.
 
 \section{Simulated Annealing Strategy}
 
-When we get a netlist, we first want to logic synthesis and reduction to the netlist due to a naive thought that less gates leads to less cost (in area, power, or other properties). 
+Upon receiving a netlist, our primary objective is to perform logic synthesis and reduction, predicated on the assumption that a reduced number of gates correlates with lower costs in terms of area, power, or other relevant properties. Following the logic synthesis, we obtain a gate-level Verilog file, which is subsequently mapped to the gates specified in the cell library.
 
-After doing proper logic synthesis, We will get a gate-level verilog file. Then we can map those gates in the verilog file to the gates specified in the cell library. 
-
-To furthur improve the performance, We can first find the gates specified in the cell library that are more suitable for the given cost estimator. 
-
-Those gates is used as the fast technology mapping of the logic gates in logic reduction part, and initial condition of the technology mapping part.
-
-For the procedures above, we use simulated annealing method to find a decent cost. Fig. 2 shows the flow chart of our process.
+To enhance performance further, we identify gates within the cell library that are more compatible with the given cost estimator. These gates are utilized for swift technology mapping of the logic gates during the logic reduction phase and serve as the initial condition for the subsequent technology mapping phase. We employ the simulated annealing method to achieve an acceptable cost. Figure 2 illustrates the flowchart of our process.
 
 \begin{figure}
     \centering
@@ -100,7 +99,7 @@ For the procedures above, we use simulated annealing method to find a decent cos
 
 \subsection{Find Suitable gates}
 
-For the beginning part, We create a fake netlist that contains only one of the primitive gates. Then we assign the gate all kinds of types to the gates, greedily pick the best assignment of the netlist. After doing this process to all primitive gates, we can get a dictionary that contains best types of all primitive gates. Here shows the pseudo code of finding the most suitable gates.
+For the initial part, we create a fake netlist that contains only one of each primitive gate. Then, we assign each gate all possible types and greedily pick the best assignment for the netlist. By performing this process for all primitive gates, we obtain a dictionary that contains the best types for each primitive gate. Below is the pseudo code for finding the most suitable gates:
 
 \begin{algorithm}
 \begin{algorithmic}[1]
@@ -121,7 +120,7 @@ For the beginning part, We create a fake netlist that contains only one of the p
 
 \subsection{Logic Synthesis}
 
-For the logic synthesis part, We conduct operations on the netlist with the help of Berkeley ABC. We first convert the netlist to And-Inverter-Graph(AIG), then do simulated annealing on the AIG. For simulated annealing, we define the process with the following conditions.\\
+For the logic synthesis part, we conduct operations on the netlist with the help of Berkeley ABC. We first convert the netlist to an And-Inverter-Graph (AIG) and then perform simulated annealing on the AIG. The simulated annealing process is defined with the following conditions:
 
 \subsubsection{Action Space}
 
@@ -135,7 +134,7 @@ The neighborhood of each AIG is all AIGs produces by conducting one command in t
 
 Cost function is defined by the given cost estimator.\\
 
-In every iteration of the simulated annealing loop, we randomly jump to a random neighborhood state, then we map the current AIG to netlist output in verilog format using the dictionary of most suitable gates if given. If not, we simply assign all gates to type 1 for time-saving consideration. After doing so, we can get the cost from cost estimator. Here we show the pseudo code of our simulated annealing process.
+In every iteration of the simulated annealing loop, we randomly jump to a neighboring state. We then map the current AIG to a netlist output in Verilog format using the dictionary of the most suitable gates, if available. If not, we assign all gates to type I for time-saving considerations. After mapping, we obtain the cost from the cost estimator. Below is the pseudo code of our simulated annealing process:
 
 \begin{algorithm}
 \begin{algorithmic}[1]
@@ -164,7 +163,7 @@ In every iteration of the simulated annealing loop, we randomly jump to a random
 
 \subsection{Technology Mapping}
 
-In the technology mapping part, we map the synthesized netlist to primitive gates specified in the library. If we have a dictionary of most suitable gates as input, then we assign all gates to the types given in the dictionary as initial condition. If not, then we randomly assign a type to each gate. For simulated annealing, we define the process with the following conditions.\\
+In the technology mapping part, we map the synthesized netlist to the primitive gates specified in the library. If we have a dictionary of the most suitable gates as input, we assign all gates to the types given in the dictionary as the initial condition. If not, we randomly assign a type to each gate. For simulated annealing, we define the process with the following conditions:
 
 
 \subsubsection{Action Space}
@@ -179,7 +178,7 @@ The neighborhood of each netlist is all netlists that exactly one gate in the ne
 
 Cost function is defined by the given cost estimator.\\
 
-In every iteration of the simulated annealing loop, we consequently jumps to a new neighbor state for several times that is roughly proportional to the current temperature and the length of the netlist. That is, we jump to furthur states in the beginning, and we jump to closer states when the temperature is low. If not doing this adjustment, the time required for the simulated annealing process will greatly depend on the length of the netlist, and the performance will worsen significantly if we use same parameters as those we used for small netlists. Therefore, To keep the process and the code have more compatibility and can simplify the parameter choosing problem for us. To be precise, we use the following pseudo code to determine how far should we jump to.
+During each iteration of the simulated annealing loop, we transition to a new neighboring state multiple times, with the frequency of these transitions being roughly proportional to the current temperature and the length of the netlist. Initially, we move to more distant states, but as the temperature decreases, we transition to closer states. This adjustment is essential because, without it, the time required for the simulated annealing process would be heavily dependent on the netlist's length, resulting in significantly degraded performance if the same parameters were used as for smaller netlists. To ensure process compatibility and simplify parameter selection, we utilize the following pseudocode to determine the jump distance:
 \begin{algorithm}
 \begin{algorithmic}[1]
     \caption{Jumping-Steps}\label{euclid}
@@ -193,7 +192,7 @@ In every iteration of the simulated annealing loop, we consequently jumps to a n
 \end{algorithmic}
 \end{algorithm}
 
-Then we can get a modified simulated annealing pseudocode.
+Thus, we can derive a modified pseudocode for simulated annealing.
 
 \begin{algorithm}
 \begin{algorithmic}[1]
@@ -218,30 +217,30 @@ Then we can get a modified simulated annealing pseudocode.
 \end{algorithmic}
 \end{algorithm}
 
-\section{Results}
-We are going to summarize our different methods to reduce the cost and show the optimization results of those methods in Table I.\\
+\section{Experimental Results}
+The experiments were conducted on the ICCAD contest benchmark. Table I illustrates the performance of the logic synthesis and technology mapping stages for different cost estimators.
+
 
 \subsection{Baseline}
-We define the baseline as the cost of the original netlist with all gate assigned type I. Thus, we define the performance ratio of a netlist be the ratio of the new cost and the baseline. \\
+We define the baseline as the cost of the original netlist with all gates assigned as type I. Thus, the performance ratio of a netlist is defined as the ratio of the new cost to the baseline cost:
+
 $\text{PRN} = \frac{\text{cost of the netlist}}{\text{cost of original netlist (assigned type I)}}$ \\
-The lower the ratio is, the performance is better. Noting that if the baseline is already zero, it is good enough. Thus, we define PRN be zero if the cost of new netlist is zero.\\
+ 
+The lower the ratio, the better the performance. If the baseline cost is zero, the PRN is defined as zero, indicating optimal performance.
 
-\subsection{Suitable gates (SG)}
-Also, as mentioned before, we find suitable gates in the beginning of the process by letting cost estimator give the cost of only one gate. We apply this assignment on the whole circuit and in some cases there is significant improvement. \\
+\subsection{Suitable Gates (SG)}
+As previously mentioned, we identify appropriate gates at the beginning of the process by allowing the cost estimator to calculate the cost of a single gate. This assessment is then applied to the entire circuit, often resulting in significant improvement.
 
-\subsection{Suitable gates + Technology mapping annealing (SG+TSA)}
-We do Simulated-Annealing-of-Technology-Mapping start from assigning the suitable gates first. This performance indicate the efficiency of the second simulated annealing.
-\\
+\subsection{Suitable Gates + Technology Mapping Annealing (SG+TSA)}
+We perform Simulated Annealing of Technology Mapping starting from the suitable gate assignments. This performance metric indicates the efficiency of the second simulated annealing process.
 
-\subsection{Suitable gates + Logic synthesis simulating annealing (SG+LSA)}
-We do Simulated-Annealing-of-Logic-Synthesis to get the combinational circuit and assign suitable gates to get cost. This performance indicate the efficiency of the first simulated annealing.
-\\
+\subsection{Suitable Gates + Logic Synthesis Simulated Annealing (SG+LSA)}
+We perform Simulated Annealing of Logic Synthesis to obtain the combinational circuit and assign suitable gates to determine the cost. This performance metric indicates the efficiency of the first simulated annealing process.
 
-\subsection{The whole process (SG+LSA+TSA)}
-This given netlist undergo the process shown in Fig.2. In fact, this is the result of the combination of the previous one and TSA.
-\\
-\\
-We run our algorithm on design1.v in the benchmark provided by the ICCAD contest, Table I shows our result:
+\subsection{The Whole Process (SG+LSA+TSA)}
+The given netlist undergoes the entire process shown in Figure 2. This result is essentially the combination of the SG+LSA and SG+TSA methods.
+
+We ran our algorithm on design1.v from the benchmark provided by the ICCAD contest. Table I shows our results:
 
 \begin{table}[htbp]
 \caption{Performance of design1.v}
@@ -260,27 +259,27 @@ We run our algorithm on design1.v in the benchmark provided by the ICCAD contest
 \textbf{\textit{7}}&
 \textbf{\textit{8}} \\
 \hline
-Baseline&7.402&28.384&1.671&6.645&1.037&0.0&2.002E+7&2.592\\
+Baseline&7.40&28.38&1.67&6.65&1.04&0&2.002+7&2.59\\
 \hline
 
-SG&3.271&17.678&1.444&3.933&1.007 &0.0 &2.002E+7&2.543\\
+SG&3.27&17.68&1.44&3.93&1.01 &0 &2.00E+7&2.54\\
 \cline{2-9}
-PRN&0.442&0.623&0.864&0.592&0.971&0&1.000&0.981\\
+PRN&0.44&0.62&0.86&0.59&0.97&0&1.00&0.98\\
 \hline
 
-SG+TSA&3.271&12.495&1.444&3.933&1.007 &0.0 &2.002E+7&2.543\\
+SG+TSA&3.27&12.50&1.44&3.93&1.01 &0 &2.00E+7&2.54\\
 \cline{2-9}
-PRN&0.442&0.440&0.864&0.592&0.971&0&1.000&0.981\\
+PRN&0.44&0.44&0.86&0.59&0.97&0&1.00&0.98\\
 \hline
 
-SG+LSA&3.290 &28.384&1.671&3.948&1.008&0.0&2.002E+7&2.049\\
+SG+LSA&3.29&28.38&1.67&3.95&1.01&0&2.00E+7&2.05\\
 \cline{2-9}
-PRN&0.444&1&1&0.594&0.972&0&1.000&0.790\\
+PRN&0.44&1&1&0.59&0.97&0&1.00&0.79\\
 \hline
 
-Whole&3.290 &13.180&1.543&3.948&1.008&0.0&2.002E+7&2.049\\
+Whole&3.29&13.18&1.54&3.95&1.01&0&2.00E+7&2.05\\
 \cline{2-9}
-PRN&0.444&0.464&0.923&0.594&0.972&0&1.000&0.790\\
+PRN&0.44&0.46&0.92&0.59&0.97&0&1.00&0.79\\
 \hline
 
 %\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
@@ -348,30 +347,38 @@ Also, from Table I, we observe that the whole process leads to the most cost red
 \end{table*}
 
 \section{Discussion}
-We observe some phenomenon and are going to discuss in the following.\\
-\subsubsection{}
-We found that both simulated annealing (Logic synthesis and technological mapping) are important. For cost estimator 2, technological mapping takes crucial part. For others, logical synthesis has great effect.
-\\
-\subsubsection{}
-We see that the result of logic synthesis may impact the effect of technological mapping simulated annealing, as the structure of the circuit has been changed. Thus, going through the whole process may lead to a good expected result but may not be the best. 
-\\
-\subsubsection{}
-For cost estimator 7, every method listed above cannot significantly make the costs lower. We think this phenomenon occurs due to the bias of the model. Such as in our observation of the Technology mapping Simulated Annealing (TSA) part, the buffers in the netlist-to-be-optimized will be wiped out, and there is no way to retrieve the information of the buffers or add new buffers. These kinds of biases exists in our annealing process, but their effect is not in our consideration.
-\\
-\subsubsection{}
-Fig.3 shows the relation between the final cost we get and the initial temperature for TSA (Technology mapping Simulated Annealing). We can see that when the initial temperature is set about at 0.1 degree, the performance is very good. If the temperature increases, the standard deviation may decrease and the average cost is slightly decreased. We utilize initial temperature 1000 to be the starting point for the experiment ,for we regard it as a balanced point between time cost and performance.
+
+In this section, we discuss several phenomena observed during our experiments.
+
+\subsubsection{Importance of Simulated Annealing}
+We found that both forms of simulated annealing, namely logic synthesis and technological mapping, are crucial. Technological mapping plays a critical role for cost estimator type 2, whereas logic synthesis significantly affects other cost estimators.
+
+\subsubsection{Impact of Logic Synthesis on Technological Mapping}
+The results of logic synthesis can influence the effectiveness of technological mapping simulated annealing due to alterations in the circuit's structure. Consequently, while the entire process may yield a good expected result, it may not necessarily be optimal.
+
+\subsubsection{Challenges with Cost Estimator 7}
+For cost estimator type 7, none of the aforementioned methods significantly reduced costs. We attribute this phenomenon to model bias. For instance, in the Technology Mapping Simulated Annealing (TSA) process, buffers in the netlist-to-be-optimized are removed without the ability to retrieve or add new buffer information. Such biases exist in our annealing process, although their impact is not fully accounted for in our analysis.
+
+\subsubsection{Effect of Initial Temperature on TSA Performance}
+Figure 3 illustrates the relationship between the final cost obtained and the initial temperature for TSA (Technology Mapping Simulated Annealing). We observe that setting the initial temperature at approximately 0.1 degrees Celsius yields very good performance. Higher temperatures may reduce the average cost slightly while decreasing the standard deviation. We chose an initial temperature of 1000 as our starting point for the experiment, balancing time cost and performance considerations.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.99\linewidth]{cost.png}
+    \includegraphics[width=0.9\linewidth]{cost.png}
     \caption{Result with different initial temperature for SA}
     \label{fig:enter-label}
 \end{figure}
 
+\section{Future works}
+Future work may involve incorporating reinforcement learning techniques into the model, as they have demonstrated significant potential. Additionally, our current model does not consider the parameters of all gates, as we employed a greedy method (Find Suitable Gates) to determine which gates to use. By integrating these two components, we may achieve better results.
+
 \section{Job division}
-B11901020 Boyuan Cheng: read data from verilog file, find suitable gates, SA analysis according to temperature, performance recording, report.\\
-B11901027 Renxuan Wang: Programming part of LSA and TSA, adjustment of simulated annealing parameters, functions of outputting verilog-format results, report.
-\\
+\begin{itemize}
+    \item B11901015 Ssuwei Huang: meta-model structure, code reconstruction, ABC-related programming, resolution of git-related issues, report.
+    \item B11901020 Boyuan Cheng: data extraction from Verilog file, gate selection, SA analysis based on temperature, performance recording, report.
+    \item B11901027 Renxuan Wang: ICCAD registration, programming for LSA and TSA, adjustment of simulated annealing parameters, generation of Verilog-format results, report.
+\end{itemize}
+
 \begin{thebibliography}{00}
 \bibitem{b1} ABC: System for Sequential Logic Synthesis and Formal Verification. https://github.com/berkeley-abc/abc
 \bibitem{b1} ICCAD Cad Contest: Reinforcement Logic Optimization for a General Cost Function. https://drive.google.com/file/d/1AfxpS7q7OEg5QP06wgk1rrVqZroT7Ypi/view
