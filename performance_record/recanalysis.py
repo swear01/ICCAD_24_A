@@ -11,7 +11,7 @@ output = []
 for i in range(2,7):
     for j in range(1,9):
         output.append(final_cost_record[i-1][j-1][1])
-with open('output1.csv', 'w', newline='') as csvfile:
+with open('output/output1.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(output)
 print(final_cost_record)

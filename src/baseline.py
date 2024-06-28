@@ -31,6 +31,6 @@ for i in range(1,7):
         cost = get_cost(cost_estimator_path, out_folder + filename[:-2] + "_current_abc_parsed.v", library_path, "output/output.txt")
         print(f"baseline for netlist {i} and extimator {j} is {cost}")
         cost_arr.append(cost)
-        with open('baseline.csv', 'w', newline='') as csvfile:
+        with open('output/baseline.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(cost_arr)
