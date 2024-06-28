@@ -20,7 +20,7 @@ for i in range(1,7):
         cost_estimator_path = "data/cost_estimators/cost_estimator_" + str(j)
         library_path = "data/lib/lib1.json"
         output_path = "output/output.v"
-        initial_temperature_2 = 0.01
+        initial_temperature_2 = 1000
 
         # get benchmark and history
         history_file = f"performance_record/{netlist}-{estimator}/{netlist}-{estimator}_hty.json"

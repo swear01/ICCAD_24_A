@@ -15,7 +15,7 @@ netlist_path = args.netlist
 cost_estimator_path = args.cost_function
 library_path = args.library
 output_path = args.output
-initial_temperature = 0.01
+initial_temperature = 1000
 
 module_name, _, _, _, _ = verilog_read.read_verilog(netlist_path)
 dictionary = map_annealing.find_initial_mapping(module_name, cost_estimator_path, library_path)
